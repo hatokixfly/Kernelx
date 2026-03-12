@@ -4,9 +4,10 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
+
 local LocalPlayer = Players.LocalPlayer
 
---// Notification
+-- Notification
 local function notify(text)
 StarterGui:SetCore("SendNotification",{
 Title="Kernel",
@@ -21,7 +22,7 @@ Text="By: Kernelx",
 Duration=5
 })
 
---// GUI
+-- GUI
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Parent = game.CoreGui
 
@@ -29,10 +30,11 @@ ScreenGui.Parent = game.CoreGui
 -- LOGO
 --================================================
 
-local Logo = Instance.new("Frame")
+local Logo = Instance.new("TextButton")
 Logo.Size = UDim2.new(0,60,0,60)
 Logo.Position = UDim2.new(0,40,0.5,-30)
 Logo.BackgroundColor3 = Color3.fromRGB(10,10,10)
+Logo.Text = ""
 Logo.Parent = ScreenGui
 Logo.Active = true
 Logo.Draggable = true
@@ -162,9 +164,12 @@ InvBtn.TextColor3 = Color3.new(1,1,1)
 
 InvBtn.MouseButton1Click:Connect(function()
 
+local char = LocalPlayer.Character
+if not char then return end
+
 Invisible=not Invisible
 
-for _,v in pairs(LocalPlayer.Character:GetDescendants()) do
+for _,v in pairs(char:GetDescendants()) do
 if v:IsA("BasePart") then
 v.Transparency = Invisible and 1 or 0
 end
@@ -190,10 +195,13 @@ GodBtn.TextColor3 = Color3.new(1,1,1)
 
 GodBtn.MouseButton1Click:Connect(function()
 
+local char = LocalPlayer.Character
+if not char then return end
+
 God=not God
 
 if God then
-LocalPlayer.Character.Humanoid.Health = math.huge
+char.Humanoid.Health = math.huge
 end
 
 notify(God and "GODMODE ON" or "GODMODE OFF")
@@ -201,7 +209,7 @@ notify(God and "GODMODE ON" or "GODMODE OFF")
 end)
 
 --================================================
--- SPEED SLIDER
+-- SPEED
 --================================================
 
 local Slider = Instance.new("TextButton")
@@ -214,9 +222,12 @@ Slider.TextColor3 = Color3.new(1,1,1)
 
 Slider.MouseButton1Click:Connect(function()
 
+local char = LocalPlayer.Character
+if not char then return end
+
 local speed = math.random(1,200)
 
-LocalPlayer.Character.Humanoid.WalkSpeed = speed
+char.Humanoid.WalkSpeed = speed
 
 Slider.Text = "SPEED: "..speed
 
