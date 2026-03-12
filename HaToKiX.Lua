@@ -1,230 +1,260 @@
---// KERNEL GUI V2
---// By Kernelx
-
-repeat task.wait() until game:IsLoaded()
+--// Kernel GUI
+--// By: Kernelx
 
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
+local LocalPlayer = Players.LocalPlayer
 
--- NOTIFICATION
-pcall(function()
+--// Notification
+local function notify(text)
 StarterGui:SetCore("SendNotification",{
-Title = "Kernel",
-Text = "By: Kernelx",
-Duration = 5
+Title="Kernel",
+Text=text,
+Duration=3
 })
-end)
-
--- GUI
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "KernelGUI"
-ScreenGui.Parent = game:GetService("CoreGui")
-ScreenGui.ResetOnSpawn = false
-
--- MAIN
-local Main = Instance.new("Frame",ScreenGui)
-Main.Size = UDim2.new(0,520,0,320)
-Main.Position = UDim2.new(0.5,-260,0.5,-160)
-Main.BackgroundColor3 = Color3.fromRGB(10,10,10)
-Main.BorderSizePixel = 0
-Main.Active = true
-Main.Draggable = true
-
-Instance.new("UICorner",Main).CornerRadius = UDim.new(0,10)
-
--- LEFT MENU
-local Left = Instance.new("Frame",Main)
-Left.Size = UDim2.new(0,150,1,0)
-Left.BackgroundColor3 = Color3.fromRGB(15,15,15)
-Left.BorderSizePixel = 0
-Instance.new("UICorner",Left)
-
--- TITLE
-local Title = Instance.new("TextLabel",Left)
-Title.Size = UDim2.new(1,0,0,50)
-Title.Text = "KERNEL"
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 20
-Title.TextColor3 = Color3.fromRGB(255,60,60)
-Title.BackgroundTransparency = 1
-
--- TAB BUTTONS
-local MainTabBtn = Instance.new("TextButton",Left)
-MainTabBtn.Position = UDim2.new(0,10,0,70)
-MainTabBtn.Size = UDim2.new(1,-20,0,40)
-MainTabBtn.Text = "MAIN"
-MainTabBtn.BackgroundColor3 = Color3.fromRGB(200,40,40)
-MainTabBtn.TextColor3 = Color3.new(1,1,1)
-MainTabBtn.BorderSizePixel = 0
-Instance.new("UICorner",MainTabBtn)
-
-local InfoTabBtn = Instance.new("TextButton",Left)
-InfoTabBtn.Position = UDim2.new(0,10,0,120)
-InfoTabBtn.Size = UDim2.new(1,-20,0,40)
-InfoTabBtn.Text = "INFO"
-InfoTabBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
-InfoTabBtn.TextColor3 = Color3.new(1,1,1)
-InfoTabBtn.BorderSizePixel = 0
-Instance.new("UICorner",InfoTabBtn)
-
--- CONTENT
-local Content = Instance.new("Frame",Main)
-Content.Position = UDim2.new(0,150,0,0)
-Content.Size = UDim2.new(1,-150,1,0)
-Content.BackgroundTransparency = 1
-
-local MainTab = Instance.new("Frame",Content)
-MainTab.Size = UDim2.new(1,0,1,0)
-MainTab.BackgroundTransparency = 1
-
-local InfoTab = Instance.new("Frame",Content)
-InfoTab.Size = UDim2.new(1,0,1,0)
-InfoTab.Visible = false
-InfoTab.BackgroundTransparency = 1
-
--- TAB SWITCH
-MainTabBtn.MouseButton1Click:Connect(function()
-MainTab.Visible = true
-InfoTab.Visible = false
-MainTabBtn.BackgroundColor3 = Color3.fromRGB(200,40,40)
-InfoTabBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
-end)
-
-InfoTabBtn.MouseButton1Click:Connect(function()
-MainTab.Visible = false
-InfoTab.Visible = true
-InfoTabBtn.BackgroundColor3 = Color3.fromRGB(200,40,40)
-MainTabBtn.BackgroundColor3 = Color3.fromRGB(30,30,30)
-end)
-
--- TOGGLE FUNCTION
-local function Toggle(name,y,callback)
-
-local Frame = Instance.new("Frame",MainTab)
-Frame.Size = UDim2.new(1,-40,0,40)
-Frame.Position = UDim2.new(0,20,0,y)
-Frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
-Frame.BorderSizePixel = 0
-Instance.new("UICorner",Frame)
-
-local Label = Instance.new("TextLabel",Frame)
-Label.Text = name
-Label.Size = UDim2.new(0.7,0,1,0)
-Label.BackgroundTransparency = 1
-Label.TextColor3 = Color3.new(1,1,1)
-Label.Font = Enum.Font.Gotham
-Label.TextSize = 14
-
-local Button = Instance.new("TextButton",Frame)
-Button.Size = UDim2.new(0,40,0,20)
-Button.Position = UDim2.new(1,-50,0.5,-10)
-Button.Text = ""
-Button.BackgroundColor3 = Color3.fromRGB(60,60,60)
-Button.BorderSizePixel = 0
-Instance.new("UICorner",Button)
-
-local state=false
-
-Button.MouseButton1Click:Connect(function()
-
-state = not state
-
-if state then
-Button.BackgroundColor3 = Color3.fromRGB(255,40,40)
-StarterGui:SetCore("SendNotification",{Title="Kernel",Text=name.." ON",Duration=2})
-else
-Button.BackgroundColor3 = Color3.fromRGB(60,60,60)
-StarterGui:SetCore("SendNotification",{Title="Kernel",Text=name.." OFF",Duration=2})
 end
-
-callback(state)
-
-end)
-
-end
-
--- ESP
-Toggle("ESP PLAYER",30,function(state)
-
-for _,v in pairs(Players:GetPlayers()) do
-if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-
-if state then
-local box = Instance.new("BoxHandleAdornment")
-box.Name="ESP"
-box.Adornee=v.Character.HumanoidRootPart
-box.Size=Vector3.new(4,6,2)
-box.Color3=Color3.fromRGB(255,0,0)
-box.AlwaysOnTop=true
-box.Parent=v.Character
-else
-if v.Character:FindFirstChild("ESP") then
-v.Character.ESP:Destroy()
-end
-end
-
-end
-end
-
-end)
-
--- INVISIBLE
-Toggle("TÀN HÌNH",80,function(state)
-
-if LocalPlayer.Character then
-for _,v in pairs(LocalPlayer.Character:GetDescendants()) do
-if v:IsA("BasePart") then
-v.Transparency = state and 1 or 0
-end
-end
-end
-
-end)
-
--- HITBOX
-Toggle("HITBOX RỘNG",130,function(state)
-
-for _,v in pairs(Players:GetPlayers()) do
-if v~=LocalPlayer and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-
-if state then
-v.Character.HumanoidRootPart.Size=Vector3.new(10,10,10)
-v.Character.HumanoidRootPart.Transparency=0.5
-else
-v.Character.HumanoidRootPart.Size=Vector3.new(2,2,1)
-v.Character.HumanoidRootPart.Transparency=1
-end
-
-end
-end
-
-end)
-
--- INFO BUTTON
-local function Button(text,y,link)
-
-local Btn = Instance.new("TextButton",InfoTab)
-Btn.Size = UDim2.new(0,260,0,50)
-Btn.Position = UDim2.new(0.5,-130,0,y)
-Btn.Text = text
-Btn.BackgroundColor3 = Color3.fromRGB(200,40,40)
-Btn.TextColor3 = Color3.new(1,1,1)
-Btn.BorderSizePixel = 0
-Instance.new("UICorner",Btn)
-
-Btn.MouseButton1Click:Connect(function()
-setclipboard(link)
 
 StarterGui:SetCore("SendNotification",{
 Title="Kernel",
-Text="Copied to clipboard",
-Duration=2
+Text="By: Kernelx",
+Duration=5
 })
+
+--// GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.CoreGui
+
+--================================================
+-- LOGO
+--================================================
+
+local Logo = Instance.new("Frame")
+Logo.Size = UDim2.new(0,60,0,60)
+Logo.Position = UDim2.new(0,40,0.5,-30)
+Logo.BackgroundColor3 = Color3.fromRGB(10,10,10)
+Logo.Parent = ScreenGui
+Logo.Active = true
+Logo.Draggable = true
+
+local LogoCorner = Instance.new("UICorner",Logo)
+LogoCorner.CornerRadius = UDim.new(1,0)
+
+local LogoStroke = Instance.new("UIStroke",Logo)
+LogoStroke.Color = Color3.fromRGB(255,0,0)
+LogoStroke.Thickness = 2
+
+local LogoText = Instance.new("TextLabel")
+LogoText.Parent = Logo
+LogoText.Size = UDim2.new(1,0,1,0)
+LogoText.BackgroundTransparency = 1
+LogoText.Text = "K"
+LogoText.Font = Enum.Font.GothamBold
+LogoText.TextColor3 = Color3.fromRGB(255,0,0)
+LogoText.TextScaled = true
+
+--================================================
+-- MENU
+--================================================
+
+local Menu = Instance.new("Frame")
+Menu.Size = UDim2.new(0,520,0,300)
+Menu.Position = UDim2.new(0.5,-260,0.5,-150)
+Menu.BackgroundColor3 = Color3.fromRGB(10,10,10)
+Menu.Visible = false
+Menu.Parent = ScreenGui
+Menu.Active = true
+Menu.Draggable = true
+
+local MenuCorner = Instance.new("UICorner",Menu)
+MenuCorner.CornerRadius = UDim.new(0,8)
+
+local Stroke = Instance.new("UIStroke",Menu)
+Stroke.Color = Color3.fromRGB(255,0,0)
+
+--================================================
+-- TOGGLE MENU
+--================================================
+
+Logo.MouseButton1Click:Connect(function()
+Menu.Visible = not Menu.Visible
+end)
+
+--================================================
+-- TAB PANEL
+--================================================
+
+local TabPanel = Instance.new("Frame")
+TabPanel.Parent = Menu
+TabPanel.Size = UDim2.new(0,120,1,0)
+TabPanel.BackgroundColor3 = Color3.fromRGB(15,15,15)
+
+local MainTab = Instance.new("TextButton")
+MainTab.Parent = TabPanel
+MainTab.Size = UDim2.new(1,0,0,50)
+MainTab.Text = "MAIN"
+MainTab.TextColor3 = Color3.new(1,1,1)
+MainTab.BackgroundColor3 = Color3.fromRGB(255,0,0)
+MainTab.Font = Enum.Font.GothamBold
+
+local InfoTab = Instance.new("TextButton")
+InfoTab.Parent = TabPanel
+InfoTab.Position = UDim2.new(0,0,0,50)
+InfoTab.Size = UDim2.new(1,0,0,50)
+InfoTab.Text = "INFO"
+InfoTab.TextColor3 = Color3.new(1,1,1)
+InfoTab.BackgroundColor3 = Color3.fromRGB(20,20,20)
+InfoTab.Font = Enum.Font.GothamBold
+
+--================================================
+-- PAGES
+--================================================
+
+local MainPage = Instance.new("Frame")
+MainPage.Parent = Menu
+MainPage.Position = UDim2.new(0,130,0,10)
+MainPage.Size = UDim2.new(1,-140,1,-20)
+MainPage.BackgroundTransparency = 1
+
+local InfoPage = Instance.new("Frame")
+InfoPage.Parent = Menu
+InfoPage.Position = MainPage.Position
+InfoPage.Size = MainPage.Size
+InfoPage.Visible = false
+InfoPage.BackgroundTransparency = 1
+
+--================================================
+-- TAB SWITCH
+--================================================
+
+MainTab.MouseButton1Click:Connect(function()
+
+MainPage.Visible=true
+InfoPage.Visible=false
+
+MainTab.BackgroundColor3 = Color3.fromRGB(255,0,0)
+InfoTab.BackgroundColor3 = Color3.fromRGB(20,20,20)
 
 end)
 
+InfoTab.MouseButton1Click:Connect(function()
+
+MainPage.Visible=false
+InfoPage.Visible=true
+
+InfoTab.BackgroundColor3 = Color3.fromRGB(255,0,0)
+MainTab.BackgroundColor3 = Color3.fromRGB(20,20,20)
+
+end)
+
+--================================================
+-- INVISIBLE
+--================================================
+
+local Invisible=false
+
+local InvBtn = Instance.new("TextButton")
+InvBtn.Parent = MainPage
+InvBtn.Size = UDim2.new(0,220,0,40)
+InvBtn.Text="TÀN HÌNH"
+InvBtn.BackgroundColor3 = Color3.fromRGB(20,20,20)
+InvBtn.TextColor3 = Color3.new(1,1,1)
+
+InvBtn.MouseButton1Click:Connect(function()
+
+Invisible=not Invisible
+
+for _,v in pairs(LocalPlayer.Character:GetDescendants()) do
+if v:IsA("BasePart") then
+v.Transparency = Invisible and 1 or 0
+end
 end
 
-Button("IG: fu._xinmo",80,"https://instagram.com/fu._xinmo")
-Button("TikTok: hatokireal",150,"https://tiktok.com/@hatokireal")
+notify(Invisible and "INVISIBLE ON" or "INVISIBLE OFF")
+
+end)
+
+--================================================
+-- GODMODE
+--================================================
+
+local God=false
+
+local GodBtn = Instance.new("TextButton")
+GodBtn.Parent = MainPage
+GodBtn.Position = UDim2.new(0,0,0,50)
+GodBtn.Size = UDim2.new(0,220,0,40)
+GodBtn.Text="BẤT TỬ"
+GodBtn.BackgroundColor3 = Color3.fromRGB(20,20,20)
+GodBtn.TextColor3 = Color3.new(1,1,1)
+
+GodBtn.MouseButton1Click:Connect(function()
+
+God=not God
+
+if God then
+LocalPlayer.Character.Humanoid.Health = math.huge
+end
+
+notify(God and "GODMODE ON" or "GODMODE OFF")
+
+end)
+
+--================================================
+-- SPEED SLIDER
+--================================================
+
+local Slider = Instance.new("TextButton")
+Slider.Parent = MainPage
+Slider.Position = UDim2.new(0,0,0,110)
+Slider.Size = UDim2.new(0,220,0,40)
+Slider.Text="SPEED: 16"
+Slider.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Slider.TextColor3 = Color3.new(1,1,1)
+
+Slider.MouseButton1Click:Connect(function()
+
+local speed = math.random(1,200)
+
+LocalPlayer.Character.Humanoid.WalkSpeed = speed
+
+Slider.Text = "SPEED: "..speed
+
+notify("SPEED: "..speed)
+
+end)
+
+--================================================
+-- INFO PAGE
+--================================================
+
+local IG = Instance.new("TextButton")
+IG.Parent = InfoPage
+IG.Size = UDim2.new(0,260,0,50)
+IG.Text = "IG: fu._xinmo"
+IG.BackgroundColor3 = Color3.fromRGB(20,20,20)
+IG.TextColor3 = Color3.new(1,1,1)
+
+IG.MouseButton1Click:Connect(function()
+
+setclipboard("https://instagram.com/fu._xinmo")
+
+notify("Copied Instagram")
+
+end)
+
+local TikTok = Instance.new("TextButton")
+TikTok.Parent = InfoPage
+TikTok.Position = UDim2.new(0,0,0,60)
+TikTok.Size = UDim2.new(0,260,0,50)
+TikTok.Text = "TikTok: hatokireal"
+TikTok.BackgroundColor3 = Color3.fromRGB(20,20,20)
+TikTok.TextColor3 = Color3.new(1,1,1)
+
+TikTok.MouseButton1Click:Connect(function()
+
+setclipboard("https://tiktok.com/@hatokireal")
+
+notify("Copied TikTok")
+
+end)
