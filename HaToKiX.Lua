@@ -3,7 +3,6 @@
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
 local player = Players.LocalPlayer
 
@@ -25,7 +24,7 @@ local gui = Instance.new("ScreenGui",game.CoreGui)
 gui.Name = "KernelUI"
 gui.ResetOnSpawn = false
 
--- Logo Button
+-- Logo
 local logo = Instance.new("TextButton",gui)
 logo.Size = UDim2.new(0,60,0,60)
 logo.Position = UDim2.new(0.05,0,0.3,0)
@@ -36,8 +35,7 @@ logo.Font = Enum.Font.GothamBold
 logo.TextSize = 28
 logo.AutoButtonColor = false
 
-local corner = Instance.new("UICorner",logo)
-corner.CornerRadius = UDim.new(1,0)
+Instance.new("UICorner",logo).CornerRadius = UDim.new(1,0)
 
 local stroke = Instance.new("UIStroke",logo)
 stroke.Color = Color3.fromRGB(255,0,0)
@@ -50,59 +48,77 @@ menu.Position = UDim2.new(0.35,0,0.3,0)
 menu.BackgroundColor3 = Color3.fromRGB(10,10,10)
 menu.Visible = false
 
-local corner2 = Instance.new("UICorner",menu)
-corner2.CornerRadius = UDim.new(0,8)
+Instance.new("UICorner",menu).CornerRadius = UDim.new(0,8)
 
 local stroke2 = Instance.new("UIStroke",menu)
 stroke2.Color = Color3.fromRGB(255,0,0)
 
--- Drag function
+-- Drag
 local function dragify(Frame)
+
 local dragToggle=nil
 local dragInput=nil
 local dragStart
 local startPos
 
 local function update(input)
+
 local delta=input.Position-dragStart
-Frame.Position=UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)
+
+Frame.Position=UDim2.new(
+startPos.X.Scale,
+startPos.X.Offset+delta.X,
+startPos.Y.Scale,
+startPos.Y.Offset+delta.Y)
+
 end
 
 Frame.InputBegan:Connect(function(input)
+
 if input.UserInputType==Enum.UserInputType.MouseButton1 then
+
 dragToggle=true
 dragStart=input.Position
 startPos=Frame.Position
+
 input.Changed:Connect(function()
+
 if input.UserInputState==Enum.UserInputState.End then
 dragToggle=false
 end
+
 end)
+
 end
+
 end)
 
 Frame.InputChanged:Connect(function(input)
+
 if input.UserInputType==Enum.UserInputType.MouseMovement then
 dragInput=input
 end
+
 end)
 
 UIS.InputChanged:Connect(function(input)
+
 if input==dragInput and dragToggle then
 update(input)
 end
+
 end)
+
 end
 
 dragify(menu)
 dragify(logo)
 
--- Toggle menu
 logo.MouseButton1Click:Connect(function()
 menu.Visible = not menu.Visible
 end)
 
--- Left Tabs
+-- Tabs
 local tabFrame = Instance.new("Frame",menu)
 tabFrame.Size = UDim2.new(0,110,1,0)
 tabFrame.BackgroundColor3 = Color3.fromRGB(15,15,15)
@@ -130,19 +146,25 @@ local infoPage = mainPage:Clone()
 infoPage.Parent = menu
 infoPage.Visible = false
 
--- TAB SWITCH
+-- Tab switch
 mainTab.MouseButton1Click:Connect(function()
+
 mainPage.Visible=true
 infoPage.Visible=false
+
 mainTab.BackgroundColor3=Color3.fromRGB(255,0,0)
 infoTab.BackgroundColor3=Color3.fromRGB(20,20,20)
+
 end)
 
 infoTab.MouseButton1Click:Connect(function()
+
 mainPage.Visible=false
 infoPage.Visible=true
+
 infoTab.BackgroundColor3=Color3.fromRGB(255,0,0)
 mainTab.BackgroundColor3=Color3.fromRGB(20,20,20)
+
 end)
 
 -- INVISIBLE
@@ -154,18 +176,25 @@ invBtn.Position = UDim2.new(0,10,0,20)
 invBtn.Text = "INVISIBLE"
 
 invBtn.MouseButton1Click:Connect(function()
+
 invisible=not invisible
 
 local char=player.Character
+
 if char then
+
 for i,v in pairs(char:GetDescendants()) do
+
 if v:IsA("BasePart") then
 v.Transparency = invisible and 1 or 0
 end
+
 end
+
 end
 
 notify(invisible and "INVISIBLE ON" or "INVISIBLE OFF")
+
 end)
 
 -- GODMODE
@@ -177,66 +206,53 @@ godBtn.Position = UDim2.new(0,10,0,70)
 godBtn.Text = "GODMODE"
 
 godBtn.MouseButton1Click:Connect(function()
+
 god = not god
 
 local hum = player.Character:FindFirstChildOfClass("Humanoid")
 
 if god then
+
 hum:GetPropertyChangedSignal("Health"):Connect(function()
 hum.Health = hum.MaxHealth
 end)
+
 notify("GODMODE ON")
+
 else
+
 notify("GODMODE OFF")
+
 end
 
 end)
 
--- SPEED SLIDER
-local speedLabel = Instance.new("TextLabel",mainPage)
-speedLabel.Position = UDim2.new(0,10,0,120)
-speedLabel.Size = UDim2.new(0,200,0,30)
-speedLabel.Text = "SPEED: 16"
-speedLabel.BackgroundTransparency = 1
-speedLabel.TextColor3 = Color3.new(1,1,1)
+-- SPEED INPUT
+local speedBox = Instance.new("TextBox",mainPage)
+speedBox.Position = UDim2.new(0,10,0,120)
+speedBox.Size = UDim2.new(0,200,0,40)
+speedBox.PlaceholderText = "Enter Speed (1 - 9999)"
+speedBox.Text = ""
+speedBox.TextColor3 = Color3.new(1,1,1)
+speedBox.BackgroundColor3 = Color3.fromRGB(20,20,20)
+speedBox.ClearTextOnFocus = false
 
-local slider = Instance.new("TextButton",mainPage)
-slider.Position = UDim2.new(0,10,0,150)
-slider.Size = UDim2.new(0,200,0,20)
-slider.Text=""
+Instance.new("UICorner",speedBox)
 
-local knob = Instance.new("Frame",slider)
-knob.Size = UDim2.new(0,10,1,0)
-knob.BackgroundColor3 = Color3.fromRGB(255,0,0)
+speedBox.FocusLost:Connect(function()
 
-local dragging=false
+local speed = tonumber(speedBox.Text)
 
-slider.InputBegan:Connect(function(i)
-if i.UserInputType==Enum.UserInputType.MouseButton1 then
-dragging=true
-end
-end)
+if speed then
 
-UIS.InputEnded:Connect(function(i)
-if i.UserInputType==Enum.UserInputType.MouseButton1 then
-dragging=false
-end
-end)
-
-UIS.InputChanged:Connect(function(i)
-if dragging then
-
-local pos = math.clamp((i.Position.X-slider.AbsolutePosition.X)/slider.AbsoluteSize.X,0,1)
-
-knob.Position = UDim2.new(pos,0,0,0)
-
-local speed = math.floor(pos*9999)
+speed = math.clamp(speed,1,9999)
 
 player.Character.Humanoid.WalkSpeed = speed
 
-speedLabel.Text = "SPEED: "..speed
+notify("SPEED: "..speed)
 
 end
+
 end)
 
 -- INFO BUTTONS
@@ -246,8 +262,11 @@ ig.Position = UDim2.new(0.5,-120,0,40)
 ig.Text = "IG: fu._xinmo"
 
 ig.MouseButton1Click:Connect(function()
+
 setclipboard("https://instagram.com/fu._xinmo")
+
 notify("Copied Instagram")
+
 end)
 
 local tk = ig:Clone()
@@ -256,6 +275,9 @@ tk.Position = UDim2.new(0.5,-120,0,120)
 tk.Text = "TikTok: hatokireal"
 
 tk.MouseButton1Click:Connect(function()
+
 setclipboard("https://tiktok.com/@hatokireal")
+
 notify("Copied TikTok")
+
 end)
