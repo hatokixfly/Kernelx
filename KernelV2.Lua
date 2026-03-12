@@ -1,224 +1,259 @@
---// KernelX HaToKi HUB
---// Script By KernelX
+-- KernelX HaToKi UI
+-- Script By: KernelX
 
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
-local UIS = game:GetService("UserInputService")
-local VirtualUser = game:GetService("VirtualUser")
 local TweenService = game:GetService("TweenService")
+local LocalPlayer = Players.LocalPlayer
 
--- INTRO
+-- Notification
 game.StarterGui:SetCore("SendNotification",{
-Title="KernelX HaToKi",
-Text="Script By KernelX",
-Duration=5
+Title = "KernelX HaToKi",
+Text = "Script By: KernelX",
+Duration = 5
 })
 
 -- GUI
-local gui = Instance.new("ScreenGui",game.CoreGui)
-gui.Name="KernelX"
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "KernelXUI"
 
--- LOGO BUTTON
-local logo = Instance.new("TextButton",gui)
-logo.Size = UDim2.new(0,60,0,60)
-logo.Position = UDim2.new(0,15,0.5,-30)
-logo.Text = "K"
-logo.BackgroundColor3 = Color3.fromRGB(255,150,0)
-logo.TextColor3 = Color3.new(1,1,1)
-logo.Font = Enum.Font.GothamBold
-logo.TextSize = 26
+-- MAIN FRAME
+local Main = Instance.new("Frame")
+Main.Parent = ScreenGui
+Main.Size = UDim2.new(0,600,0,360)
+Main.Position = UDim2.new(0.5,-300,0.5,-180)
+Main.BackgroundColor3 = Color3.fromRGB(10,10,10)
+Main.BorderSizePixel = 0
 
--- MAIN WINDOW
-local main = Instance.new("Frame",gui)
-main.Size = UDim2.new(0,520,0,360)
-main.Position = UDim2.new(0.3,0,0.2,0)
-main.BackgroundColor3 = Color3.fromRGB(22,22,22)
-main.Visible=false
-main.Active=true
-main.Draggable=true
+local Corner = Instance.new("UICorner",Main)
+Corner.CornerRadius = UDim.new(0,10)
 
--- ANIMATION
-local function openMenu()
-main.Visible=true
-main.Size=UDim2.new(0,0,0,0)
-TweenService:Create(main,TweenInfo.new(0.3),{
-Size=UDim2.new(0,520,0,360)
-}):Play()
-end
+-- LEFT MENU
+local Left = Instance.new("Frame")
+Left.Parent = Main
+Left.Size = UDim2.new(0,150,1,0)
+Left.BackgroundColor3 = Color3.fromRGB(15,15,15)
+Left.BorderSizePixel = 0
 
-logo.MouseButton1Click:Connect(openMenu)
+Instance.new("UICorner",Left)
 
 -- TITLE
-local title = Instance.new("TextLabel",main)
-title.Size = UDim2.new(1,0,0,40)
-title.Text="KernelX HaToKi"
-title.BackgroundTransparency=1
-title.TextColor3=Color3.fromRGB(255,170,0)
-title.Font=Enum.Font.GothamBold
-title.TextSize=22
+local Title = Instance.new("TextLabel")
+Title.Parent = Left
+Title.Text = "KernelX HaToKi"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+Title.TextColor3 = Color3.fromRGB(255,50,50)
+Title.BackgroundTransparency = 1
+Title.Size = UDim2.new(1,0,0,40)
 
--- CLOSE
-local close = Instance.new("TextButton",main)
-close.Size=UDim2.new(0,40,0,40)
-close.Position=UDim2.new(1,-40,0,0)
-close.Text="X"
-close.BackgroundColor3=Color3.fromRGB(40,40,40)
+-- TAB CONTAINER
+local TabContainer = Instance.new("Frame")
+TabContainer.Parent = Main
+TabContainer.Position = UDim2.new(0,150,0,0)
+TabContainer.Size = UDim2.new(1,-150,1,0)
+TabContainer.BackgroundTransparency = 1
 
-close.MouseButton1Click:Connect(function()
-main.Visible=false
-end)
+-- TAB FUNCTION
+local function CreateTab(name,pos)
 
--- TOGGLE FUNCTION
-local function createToggle(text,posY,callback)
+local Button = Instance.new("TextButton")
+Button.Parent = Left
+Button.Text = name
+Button.Font = Enum.Font.Gotham
+Button.TextSize = 14
+Button.Size = UDim2.new(1,0,0,35)
+Button.Position = UDim2.new(0,0,0,pos)
+Button.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Button.TextColor3 = Color3.new(1,1,1)
 
-local state=false
+local Corner = Instance.new("UICorner",Button)
 
-local btn = Instance.new("TextButton",main)
-btn.Size=UDim2.new(0,200,0,35)
-btn.Position=UDim2.new(0,20,0,posY)
-btn.Text=text.." ❌"
-btn.BackgroundColor3=Color3.fromRGB(35,35,35)
+local Page = Instance.new("Frame")
+Page.Parent = TabContainer
+Page.Size = UDim2.new(1,0,1,0)
+Page.BackgroundTransparency = 1
+Page.Visible = false
 
-btn.MouseButton1Click:Connect(function()
-state=not state
-btn.Text=text..(state and " ✅" or " ❌")
-callback(state)
-end)
+Button.MouseButton1Click:Connect(function()
 
-end
-
--- SAVE POSITION
-local savedPos=nil
-
-createToggle("SAVE POSITION",60,function(v)
-if v then
-savedPos=LocalPlayer.Character.HumanoidRootPart.Position
-end
-end)
-
--- TELEPORT SAVED
-createToggle("TELEPORT SAVED",100,function(v)
-if v and savedPos then
-LocalPlayer.Character.HumanoidRootPart.CFrame=CFrame.new(savedPos)
-end
-end)
-
--- TELE BASE
-createToggle("TELE BASE",140,function(v)
-if v then
-LocalPlayer.Character.HumanoidRootPart.CFrame=
-LocalPlayer.Character.HumanoidRootPart.CFrame*CFrame.new(0,-1000,0)
-end
-end)
-
--- SPIN SCREEN
-local spin=false
-
-createToggle("SPIN SCREEN",180,function(v)
-spin=v
-while spin do
-RunService.RenderStepped:Wait()
-LocalPlayer.Character.HumanoidRootPart.CFrame=
-LocalPlayer.Character.HumanoidRootPart.CFrame*CFrame.Angles(0,math.rad(5),0)
-end
-end)
-
--- AUTO JUMP
-local jump=false
-
-createToggle("AUTO JUMP",220,function(v)
-jump=v
-while jump do
-task.wait(0.2)
-LocalPlayer.Character.Humanoid.Jump=true
-end
-end)
-
--- ESP BOX
-createToggle("ESP BOX",60,function(v)
-
-if v then
-for _,p in pairs(Players:GetPlayers()) do
-if p~=LocalPlayer and p.Character then
-local h=Instance.new("Highlight")
-h.FillTransparency=1
-h.OutlineColor=Color3.fromRGB(255,0,0)
-h.Parent=p.Character
+for _,v in pairs(TabContainer:GetChildren()) do
+if v:IsA("Frame") then
+v.Visible=false
 end
 end
-end
+
+Page.Visible=true
 
 end)
 
--- ESP LINE
-createToggle("ESP LINE",100,function(v)
+return Page
 
-if v then
-for _,p in pairs(Players:GetPlayers()) do
-if p~=LocalPlayer then
-local beam=Instance.new("Beam")
-beam.Parent=LocalPlayer.Character.Head
 end
-end
+
+-- TABS
+local MainTab = CreateTab("MAIN",50)
+local EspTab = CreateTab("ESP",90)
+local SpinTab = CreateTab("SPIN",130)
+local TeleTab = CreateTab("TELEPORT",170)
+local AfkTab = CreateTab("AFK",210)
+local InfoTab = CreateTab("INFO",250)
+
+MainTab.Visible=true
+
+-- TOGGLE CREATOR
+local function CreateToggle(parent,text,pos)
+
+local Frame = Instance.new("Frame",parent)
+Frame.Size = UDim2.new(0,250,0,40)
+Frame.Position = UDim2.new(0,20,0,pos)
+Frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+
+Instance.new("UICorner",Frame)
+
+local Label = Instance.new("TextLabel",Frame)
+Label.Text = text
+Label.Font = Enum.Font.Gotham
+Label.TextSize = 14
+Label.TextColor3 = Color3.new(1,1,1)
+Label.BackgroundTransparency = 1
+Label.Position = UDim2.new(0,10,0,0)
+Label.Size = UDim2.new(0.7,0,1,0)
+
+local Toggle = Instance.new("TextButton",Frame)
+Toggle.Size = UDim2.new(0,40,0,20)
+Toggle.Position = UDim2.new(1,-50,0.5,-10)
+Toggle.BackgroundColor3 = Color3.fromRGB(40,40,40)
+Toggle.Text=""
+
+Instance.new("UICorner",Toggle)
+
+local enabled=false
+
+Toggle.MouseButton1Click:Connect(function()
+
+enabled = not enabled
+
+if enabled then
+TweenService:Create(Toggle,TweenInfo.new(0.2),
+{BackgroundColor3 = Color3.fromRGB(255,50,50)}):Play()
+else
+TweenService:Create(Toggle,TweenInfo.new(0.2),
+{BackgroundColor3 = Color3.fromRGB(40,40,40)}):Play()
 end
 
 end)
 
--- ANTI AFK
-LocalPlayer.Idled:Connect(function()
-VirtualUser:CaptureController()
-VirtualUser:ClickButton2(Vector2.new())
-end)
-
--- SPIN OPTIONS
-local selectedSpin="Gold"
-
-local spinLabel = Instance.new("TextLabel",main)
-spinLabel.Text="Spin Type:"
-spinLabel.Position=UDim2.new(0,260,0,60)
-spinLabel.Size=UDim2.new(0,200,0,30)
-spinLabel.BackgroundTransparency=1
-spinLabel.TextColor3=Color3.new(1,1,1)
-
-local function spinOption(name,y)
-
-local b=Instance.new("TextButton",main)
-b.Size=UDim2.new(0,200,0,30)
-b.Position=UDim2.new(0,260,0,y)
-b.Text=name
-b.BackgroundColor3=Color3.fromRGB(35,35,35)
-
-b.MouseButton1Click:Connect(function()
-selectedSpin=name
-spinLabel.Text="Spin Type: "..name
-end)
-
 end
 
-spinOption("Lava",90)
-spinOption("Gold",130)
-spinOption("Diamond",170)
-spinOption("Mythic",210)
+-- ESP TAB
+CreateToggle(EspTab,"ESP BOX",20)
+CreateToggle(EspTab,"ESP LINE",70)
 
--- AUTO SPIN
-local autoSpin=false
+-- AFK TAB
+CreateToggle(AfkTab,"ANTI AFK",20)
+CreateToggle(AfkTab,"AUTO SPIN CAMERA",70)
+CreateToggle(AfkTab,"AUTO SPACE",120)
 
-createToggle("AUTO SPIN PET",260,function(v)
-autoSpin=v
+-- MAIN TAB BUTTONS
 
-while autoSpin do
-task.wait(1)
-game:GetService("VirtualInputManager"):SendKeyEvent(true,"E",false,game)
+local SavePos
+
+local Save = Instance.new("TextButton",MainTab)
+Save.Size = UDim2.new(0,200,0,40)
+Save.Position = UDim2.new(0,20,0,20)
+Save.Text="SAVE POSITION"
+Save.BackgroundColor3 = Color3.fromRGB(255,50,50)
+Save.TextColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner",Save)
+
+Save.MouseButton1Click:Connect(function()
+SavePos = LocalPlayer.Character.HumanoidRootPart.CFrame
+end)
+
+local Tele = Save:Clone()
+Tele.Parent = MainTab
+Tele.Position = UDim2.new(0,20,0,70)
+Tele.Text="TELEPORT TO SAVE"
+
+Tele.MouseButton1Click:Connect(function()
+
+if SavePos then
+LocalPlayer.Character.HumanoidRootPart.CFrame = SavePos
 end
 
 end)
 
--- INFO
-local info = Instance.new("TextLabel",main)
-info.Size=UDim2.new(0,450,0,80)
-info.Position=UDim2.new(0,20,0,300)
-info.BackgroundTransparency=1
-info.TextColor3=Color3.fromRGB(200,200,200)
-info.Text="Facebook: fb.com/htknew.cityy\nDiscord: discord.gg/tV5RhPgsz\nTikTok: tiktok.com/@hatokireal\nIG: instagram.com/@fu._xinmo"
-info.TextXAlignment=Enum.TextXAlignment.Left
+-- INFO BOX
+
+local function CreateInfo(text,link,pos)
+
+local Box = Instance.new("TextButton",InfoTab)
+Box.Size = UDim2.new(0,300,0,40)
+Box.Position = UDim2.new(0,20,0,pos)
+Box.Text = text
+Box.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Box.TextColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner",Box)
+
+Box.MouseButton1Click:Connect(function()
+setclipboard(link)
+end)
+
+end
+
+CreateInfo("Facebook","fb.com/htknew.cityy",20)
+CreateInfo("Discord","https://discord.gg/tV5RhPgsz",70)
+CreateInfo("TikTok","tiktok.com/@hatokireal",120)
+CreateInfo("Instagram","instagram.com/@fu._xinmo",170)
+
+-- DRAG GUI
+
+local UIS = game:GetService("UserInputService")
+
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+Main.InputBegan:Connect(function(input)
+
+if input.UserInputType == Enum.UserInputType.MouseButton1 then
+dragging = true
+dragStart = input.Position
+startPos = Main.Position
+
+input.Changed:Connect(function()
+if input.UserInputState == Enum.UserInputState.End then
+dragging = false
+end
+end)
+
+end
+
+end)
+
+Main.InputChanged:Connect(function(input)
+if input.UserInputType == Enum.UserInputType.MouseMovement then
+dragInput = input
+end
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+if input == dragInput and dragging then
+
+local delta = input.Position - dragStart
+
+Main.Position = UDim2.new(
+startPos.X.Scale,
+startPos.X.Offset + delta.X,
+startPos.Y.Scale,
+startPos.Y.Offset + delta.Y
+)
+
+end
+
+end)
