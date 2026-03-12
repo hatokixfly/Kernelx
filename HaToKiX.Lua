@@ -3,22 +3,23 @@
 
 local Players = game:GetService("Players")
 local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 
 local Player = Players.LocalPlayer
 
 -- notification
-local function notify(text)
+local function notify(t)
 pcall(function()
 StarterGui:SetCore("SendNotification",{
-Title = "Kernel",
-Text = text,
-Duration = 3
+Title="Kernel",
+Text=t,
+Duration=3
 })
 end)
 end
 
-notify("By: Kernelx")
+notify("Kernel Loaded")
 
 -- GUI
 local ScreenGui = Instance.new("ScreenGui")
@@ -35,47 +36,39 @@ Menu.Size = UDim2.new(0,520,0,300)
 Menu.Position = UDim2.new(0.5,-260,0.5,-150)
 Menu.BackgroundColor3 = Color3.fromRGB(10,10,10)
 
-Instance.new("UICorner",Menu).CornerRadius = UDim.new(0,8)
+Instance.new("UICorner",Menu)
 
-local stroke = Instance.new("UIStroke",Menu)
-stroke.Color = Color3.fromRGB(255,0,0)
+local Stroke = Instance.new("UIStroke")
+Stroke.Parent = Menu
+Stroke.Color = Color3.fromRGB(255,0,0)
 
 --================================================
--- DRAG SYSTEM
+-- DRAG
 --================================================
 
-local dragToggle=nil
-local dragInput=nil
-local dragStart=nil
-local startPos=nil
+local dragging=false
+local dragStart
+local startPos
 
 Menu.InputBegan:Connect(function(input)
 
-if input.UserInputType==Enum.UserInputType.MouseButton1 then
-
-dragToggle=true
-dragStart=input.Position
-startPos=Menu.Position
-
-input.Changed:Connect(function()
-if input.UserInputState==Enum.UserInputState.End then
-dragToggle=false
-end
-end)
-
+if input.UserInputType == Enum.UserInputType.MouseButton1 then
+dragging = true
+dragStart = input.Position
+startPos = Menu.Position
 end
 
 end)
 
-Menu.InputChanged:Connect(function(input)
-if input.UserInputType==Enum.UserInputType.MouseMovement then
-dragInput=input
+Menu.InputEnded:Connect(function(input)
+if input.UserInputType == Enum.UserInputType.MouseButton1 then
+dragging=false
 end
 end)
 
 UIS.InputChanged:Connect(function(input)
 
-if input==dragInput and dragToggle then
+if dragging and input.UserInputType==Enum.UserInputType.MouseMovement then
 
 local delta=input.Position-dragStart
 
@@ -102,19 +95,17 @@ TabPanel.BackgroundColor3 = Color3.fromRGB(15,15,15)
 local MainTab = Instance.new("TextButton")
 MainTab.Parent = TabPanel
 MainTab.Size = UDim2.new(1,0,0,50)
-MainTab.Text = "MAIN"
+MainTab.Text="MAIN"
 MainTab.BackgroundColor3 = Color3.fromRGB(255,0,0)
 MainTab.TextColor3 = Color3.new(1,1,1)
-MainTab.Font = Enum.Font.GothamBold
 
 local InfoTab = Instance.new("TextButton")
 InfoTab.Parent = TabPanel
 InfoTab.Position = UDim2.new(0,0,0,50)
 InfoTab.Size = UDim2.new(1,0,0,50)
-InfoTab.Text = "INFO"
+InfoTab.Text="INFO"
 InfoTab.BackgroundColor3 = Color3.fromRGB(20,20,20)
 InfoTab.TextColor3 = Color3.new(1,1,1)
-InfoTab.Font = Enum.Font.GothamBold
 
 --================================================
 -- PAGES
@@ -133,17 +124,14 @@ InfoPage.Size = MainPage.Size
 InfoPage.Visible = false
 InfoPage.BackgroundTransparency = 1
 
---================================================
--- TAB SWITCH
---================================================
-
+-- tab switch
 MainTab.MouseButton1Click:Connect(function()
 
 MainPage.Visible=true
 InfoPage.Visible=false
 
-MainTab.BackgroundColor3 = Color3.fromRGB(255,0,0)
-InfoTab.BackgroundColor3 = Color3.fromRGB(20,20,20)
+MainTab.BackgroundColor3=Color3.fromRGB(255,0,0)
+InfoTab.BackgroundColor3=Color3.fromRGB(20,20,20)
 
 end)
 
@@ -152,8 +140,47 @@ InfoTab.MouseButton1Click:Connect(function()
 MainPage.Visible=false
 InfoPage.Visible=true
 
-InfoTab.BackgroundColor3 = Color3.fromRGB(255,0,0)
-MainTab.BackgroundColor3 = Color3.fromRGB(20,20,20)
+InfoTab.BackgroundColor3=Color3.fromRGB(255,0,0)
+MainTab.BackgroundColor3=Color3.fromRGB(20,20,20)
+
+end)
+
+--================================================
+-- VARIABLES
+--================================================
+
+local Invisible=false
+local GodMode=false
+local Speed=16
+
+--================================================
+-- CHARACTER LOOP
+--================================================
+
+RunService.RenderStepped:Connect(function()
+
+local char=Player.Character
+if not char then return end
+
+local hum=char:FindFirstChildOfClass("Humanoid")
+if not hum then return end
+
+-- godmode
+if GodMode then
+hum.Health = hum.MaxHealth
+end
+
+-- speed
+hum.WalkSpeed = Speed
+
+-- invisible
+if Invisible then
+for _,v in pairs(char:GetDescendants()) do
+if v:IsA("BasePart") then
+v.Transparency = 1
+end
+end
+end
 
 end)
 
@@ -161,29 +188,29 @@ end)
 -- INVISIBLE
 --================================================
 
-local inv=false
-
 local InvBtn = Instance.new("TextButton")
 InvBtn.Parent = MainPage
 InvBtn.Size = UDim2.new(0,220,0,40)
-InvBtn.Text="TÀN HÌNH"
+InvBtn.Text="INVISIBLE"
 InvBtn.BackgroundColor3 = Color3.fromRGB(20,20,20)
 InvBtn.TextColor3 = Color3.new(1,1,1)
 
 InvBtn.MouseButton1Click:Connect(function()
 
-local char = Player.Character
-if not char then return end
+Invisible = not Invisible
 
-inv = not inv
-
+if not Invisible then
+local char=Player.Character
+if char then
 for _,v in pairs(char:GetDescendants()) do
 if v:IsA("BasePart") then
-v.Transparency = inv and 1 or 0
+v.Transparency = 0
+end
+end
 end
 end
 
-notify(inv and "INVISIBLE ON" or "INVISIBLE OFF")
+notify(Invisible and "INVISIBLE ON" or "INVISIBLE OFF")
 
 end)
 
@@ -191,53 +218,79 @@ end)
 -- GOD MODE
 --================================================
 
-local god=false
-
 local GodBtn = Instance.new("TextButton")
 GodBtn.Parent = MainPage
 GodBtn.Position = UDim2.new(0,0,0,50)
 GodBtn.Size = UDim2.new(0,220,0,40)
-GodBtn.Text="BẤT TỬ"
+GodBtn.Text="GOD MODE"
 GodBtn.BackgroundColor3 = Color3.fromRGB(20,20,20)
 GodBtn.TextColor3 = Color3.new(1,1,1)
 
 GodBtn.MouseButton1Click:Connect(function()
 
-local char = Player.Character
-if not char then return end
+GodMode = not GodMode
 
-god = not god
-
-if god then
-char:FindFirstChildOfClass("Humanoid").Health = math.huge
-end
-
-notify(god and "GODMODE ON" or "GODMODE OFF")
+notify(GodMode and "GODMODE ON" or "GODMODE OFF")
 
 end)
 
 --================================================
--- SPEED RANDOM
+-- SPEED SLIDER
 --================================================
 
-local SpeedBtn = Instance.new("TextButton")
-SpeedBtn.Parent = MainPage
-SpeedBtn.Position = UDim2.new(0,0,0,110)
-SpeedBtn.Size = UDim2.new(0,220,0,40)
-SpeedBtn.Text="SPEED RANDOM"
-SpeedBtn.BackgroundColor3 = Color3.fromRGB(20,20,20)
-SpeedBtn.TextColor3 = Color3.new(1,1,1)
+local SpeedLabel = Instance.new("TextLabel")
+SpeedLabel.Parent = MainPage
+SpeedLabel.Position = UDim2.new(0,0,0,110)
+SpeedLabel.Size = UDim2.new(0,220,0,30)
+SpeedLabel.Text="SPEED: 16"
+SpeedLabel.BackgroundTransparency = 1
+SpeedLabel.TextColor3 = Color3.new(1,1,1)
 
-SpeedBtn.MouseButton1Click:Connect(function()
+local Slider = Instance.new("Frame")
+Slider.Parent = MainPage
+Slider.Position = UDim2.new(0,0,0,140)
+Slider.Size = UDim2.new(0,220,0,8)
+Slider.BackgroundColor3 = Color3.fromRGB(30,30,30)
 
-local char = Player.Character
-if not char then return end
+local Bar = Instance.new("Frame")
+Bar.Parent = Slider
+Bar.Size = UDim2.new(0,0,1,0)
+Bar.BackgroundColor3 = Color3.fromRGB(255,0,0)
 
-local speed = math.random(1,999999)
+local dragging=false
 
-char:FindFirstChildOfClass("Humanoid").WalkSpeed = speed
+Slider.InputBegan:Connect(function(input)
 
-notify("SPEED: "..speed)
+if input.UserInputType==Enum.UserInputType.MouseButton1 then
+dragging=true
+end
+
+end)
+
+UIS.InputEnded:Connect(function(input)
+
+if input.UserInputType==Enum.UserInputType.MouseButton1 then
+dragging=false
+end
+
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+if dragging and input.UserInputType==Enum.UserInputType.MouseMovement then
+
+local pos = math.clamp(
+(input.Position.X - Slider.AbsolutePosition.X) / Slider.AbsoluteSize.X,
+0,1
+)
+
+Bar.Size = UDim2.new(pos,0,1,0)
+
+Speed = math.floor(1 + (199*pos))
+
+SpeedLabel.Text="SPEED: "..Speed
+
+end
 
 end)
 
@@ -255,7 +308,6 @@ IG.TextColor3 = Color3.new(1,1,1)
 IG.MouseButton1Click:Connect(function()
 
 setclipboard("https://instagram.com/fu._xinmo")
-
 notify("Copied Instagram")
 
 end)
@@ -270,8 +322,4 @@ TT.TextColor3 = Color3.new(1,1,1)
 
 TT.MouseButton1Click:Connect(function()
 
-setclipboard("https://tiktok.com/@hatokireal")
-
-notify("Copied TikTok")
-
-end)
+setclipboard
