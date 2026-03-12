@@ -177,8 +177,8 @@ godBtn.Position = UDim2.new(0,10,0,70)
 godBtn.Text = "GODMODE"
 
 godBtn.MouseButton1Click:Connect(function()
-
 god = not god
+
 local hum = player.Character:FindFirstChildOfClass("Humanoid")
 
 if god then
@@ -192,67 +192,54 @@ end
 
 end)
 
-------------------------------------------------
--- SPEED INPUT
-------------------------------------------------
+-- SPEED SLIDER
+local speedLabel = Instance.new("TextLabel",mainPage)
+speedLabel.Position = UDim2.new(0,10,0,120)
+speedLabel.Size = UDim2.new(0,200,0,30)
+speedLabel.Text = "SPEED: 16"
+speedLabel.BackgroundTransparency = 1
+speedLabel.TextColor3 = Color3.new(1,1,1)
 
-local speedValue = 16
-local speedEnabled = false
+local slider = Instance.new("TextButton",mainPage)
+slider.Position = UDim2.new(0,10,0,150)
+slider.Size = UDim2.new(0,200,0,20)
+slider.Text=""
 
-local speedBox = Instance.new("TextBox",mainPage)
-speedBox.Size = UDim2.new(0,200,0,35)
-speedBox.Position = UDim2.new(0,10,0,120)
-speedBox.PlaceholderText = "Enter Speed (1-9999)"
-speedBox.Text = ""
-speedBox.TextColor3 = Color3.new(1,1,1)
-speedBox.BackgroundColor3 = Color3.fromRGB(20,20,20)
+local knob = Instance.new("Frame",slider)
+knob.Size = UDim2.new(0,10,1,0)
+knob.BackgroundColor3 = Color3.fromRGB(255,0,0)
 
-local startBtn = Instance.new("TextButton",mainPage)
-startBtn.Size = UDim2.new(0,95,0,35)
-startBtn.Position = UDim2.new(0,10,0,165)
-startBtn.Text = "START SPEED"
+local dragging=false
 
-local stopBtn = Instance.new("TextButton",mainPage)
-stopBtn.Size = UDim2.new(0,95,0,35)
-stopBtn.Position = UDim2.new(0,115,0,165)
-stopBtn.Text = "STOP"
-
-startBtn.MouseButton1Click:Connect(function()
-
-local num = tonumber(speedBox.Text)
-
-if num then
-speedValue = math.clamp(num,1,9999)
-speedEnabled = true
-notify("SPEED ON : "..speedValue)
+slider.InputBegan:Connect(function(i)
+if i.UserInputType==Enum.UserInputType.MouseButton1 then
+dragging=true
 end
-
 end)
 
-stopBtn.MouseButton1Click:Connect(function()
-
-speedEnabled = false
-player.Character.Humanoid.WalkSpeed = 16
-notify("SPEED OFF")
-
+UIS.InputEnded:Connect(function(i)
+if i.UserInputType==Enum.UserInputType.MouseButton1 then
+dragging=false
+end
 end)
 
--- loop apply speed
-game:GetService("RunService").RenderStepped:Connect(function()
+UIS.InputChanged:Connect(function(i)
+if dragging then
 
-if speedEnabled then
-local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-if hum then
-hum.WalkSpeed = speedValue
-end
-end
+local pos = math.clamp((i.Position.X-slider.AbsolutePosition.X)/slider.AbsoluteSize.X,0,1)
 
+knob.Position = UDim2.new(pos,0,0,0)
+
+local speed = math.floor(pos*9999)
+
+player.Character.Humanoid.WalkSpeed = speed
+
+speedLabel.Text = "SPEED: "..speed
+
+end
 end)
 
-------------------------------------------------
 -- INFO BUTTONS
-------------------------------------------------
-
 local ig = Instance.new("TextButton",infoPage)
 ig.Size = UDim2.new(0,240,0,60)
 ig.Position = UDim2.new(0.5,-120,0,40)
