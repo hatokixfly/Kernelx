@@ -1,351 +1,400 @@
---// =========================================================
---// NGUYEN THANH PHU PREMIUM GUI V2
---// Full Premium Framework Style Lee Hub / Kernel
---// =========================================================
+-- Kernel V2 GUI Script
 
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local UIS = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
-local StarterGui = game:GetService("StarterGui")
-local TeleportService = game:GetService("TeleportService")
-local LocalPlayer = Players.LocalPlayer
+local KernelV2 = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local LogoButton = Instance.new("TextButton")
+local LoadingPanel = Instance.new("Frame")
+local LoadingText = Instance.new("TextLabel")
+local LoadingBar = Instance.new("Frame")
+local MainTab = Instance.new("TextButton")
+local SettingsTab = Instance.new("TextButton")
+local MainContent = Instance.new("Frame")
+local SettingsContent = Instance.new("Frame")
+local ToggleTemplate = Instance.new("TextButton")
 
-pcall(function()
-    game.CoreGui:FindFirstChild("KernelPremiumV2"):Destroy()
-end)
+-- Styles
+local premiumBlack = Color3.fromRGB(25, 25, 25)
+local accentRed = Color3.fromRGB(255, 0, 0)
+local darkBackground = Color3.fromRGB(15, 15, 15)
+local glowColor = Color3.fromRGB(255, 0, 0, 0.5)
 
---==================================================
--- Notification
---==================================================
-local function notify(txt)
-    pcall(function()
-        StarterGui:SetCore("SendNotification",{
-            Title="KernelX",
-            Text=txt,
-            Duration=3
-        })
+-- Utility Functions
+local function createDraggable(frame)
+    local dragging
+    local dragInput
+    local dragStart
+    local startPos
+
+    local function update(input)
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            update(input)
+        end
     end)
 end
 
-notify("Script By KernelX")
+-- Logo Button
+LogoButton.Size = UDim2.new(0, 50, 0, 50)
+LogoButton.Position = UDim2.new(0, 10, 0, 10)
+LogoButton.BackgroundColor3 = premiumBlack
+LogoButton.Text = "K"
+LogoButton.TextColor3 = accentRed
+LogoButton.TextSize = 24
+LogoButton.Font = Enum.Font.SourceSansBold
+LogoButton.ZIndex = 2
+LogoButton.Parent = KernelV2
 
---==================================================
--- GUI ROOT
---==================================================
-local gui = Instance.new("ScreenGui")
-gui.Name = "KernelPremiumV2"
-gui.Parent = game.CoreGui
-gui.ResetOnSpawn = false
+createDraggable(LogoButton)
 
---==================================================
--- LOGO BUTTON
---==================================================
-local logo = Instance.new("TextButton")
-logo.Parent = gui
-logo.Size = UDim2.new(0,58,0,58)
-logo.Position = UDim2.new(0,20,0.5,-29)
-logo.Text = "K"
-logo.Font = Enum.Font.GothamBlack
-logo.TextScaled = true
-logo.TextColor3 = Color3.new(1,1,1)
-logo.BackgroundColor3 = Color3.fromRGB(20,20,20)
-Instance.new("UICorner",logo).CornerRadius = UDim.new(1,0)
-
-local logoStroke = Instance.new("UIStroke",logo)
-logoStroke.Color = Color3.fromRGB(255,0,0)
-
---==================================================
--- MAIN FRAME
---==================================================
-local main = Instance.new("Frame")
-main.Parent = gui
-main.Size = UDim2.new(0,720,0,460)
-main.Position = UDim2.new(0.5,-360,0.5,-230)
-main.BackgroundColor3 = Color3.fromRGB(10,10,10)
-Instance.new("UICorner",main).CornerRadius = UDim.new(0,14)
-
-local stroke = Instance.new("UIStroke",main)
-stroke.Color = Color3.fromRGB(255,0,0)
-stroke.Thickness = 1.5
-
--- glow pulse
-spawn(function()
-    while true do
-        TweenService:Create(stroke,TweenInfo.new(1),{Transparency=0.3}):Play()
-        wait(1)
-        TweenService:Create(stroke,TweenInfo.new(1),{Transparency=0}):Play()
-        wait(1)
+LogoButton.MouseButton1Click:Connect(function()
+    if MainFrame.Visible then
+        MainFrame:TweenPosition(UDim2.new(0.5, 0, 1, 0), "Out", "Quad", 0.5, true)
+    else
+        MainFrame:TweenPosition(UDim2.new(0.5, 0, 0.5, 0), "Out", "Quad", 0.5, true)
     end
+    MainFrame.Visible = not MainFrame.Visible
 end)
 
---==================================================
--- TITLE
---==================================================
-local title = Instance.new("TextLabel")
-title.Parent = main
-title.Size = UDim2.new(1,0,0,50)
-title.BackgroundTransparency = 1
-title.Text = "Nguyen Thanh Phu"
-title.Font = Enum.Font.GothamBold
-title.TextScaled = true
+-- Loading Panel
+LoadingPanel.Size = UDim2.new(0, 300, 0, 150)
+LoadingPanel.Position = UDim2.new(0.5, -150, 0.5, -75)
+LoadingPanel.BackgroundColor3 = premiumBlack
+LoadingPanel.BorderSizePixel = 0
+LoadingPanel.Parent = KernelV2
+
+LoadingText.Size = UDim2.new(1, 0, 0.5, 0)
+LoadingText.Position = UDim2.new(0, 0, 0, 0)
+LoadingText.BackgroundTransparency = 1
+LoadingText.Text = "KERNEL V2"
+LoadingText.TextColor3 = accentRed
+LoadingText.TextSize = 48
+LoadingText.Font = Enum.Font.SourceSansBold
+LoadingText.Parent = LoadingPanel
+
+LoadingBar.Size = UDim2.new(1, 0, 0.1, 0)
+LoadingBar.Position = UDim2.new(0, 0, 0.6, 0)
+LoadingBar.BackgroundColor3 = accentRed
+LoadingBar.Parent = LoadingPanel
 
 spawn(function()
-    while true do
-        for i=0,1,0.01 do
-            title.TextColor3 = Color3.fromHSV(i,1,1)
-            wait()
-        end
+    for i = 0, 100, 1 do
+        LoadingBar.Size = UDim2.new(i / 100, 0, 0.1, 0)
+        wait(0.01)
     end
+    LoadingPanel:TweenPosition(UDim2.new(0.5, 0, 1, 0), "Out", "Quad", 0.5, true)
+    wait(0.5)
+    LoadingPanel.Visible = false
+    MainFrame.Visible = true
 end)
 
---==================================================
--- LOADING
---==================================================
-local load = Instance.new("Frame")
-load.Parent = gui
-load.Size = UDim2.new(0,420,0,130)
-load.Position = UDim2.new(0.5,-210,0.5,-65)
-load.BackgroundColor3 = Color3.fromRGB(15,15,15)
-Instance.new("UICorner",load)
+-- Main Frame
+MainFrame.Size = UDim2.new(0, 600, 0, 400)
+MainFrame.Position = UDim2.new(0.5, 0, 1, 0)
+MainFrame.BackgroundColor3 = premiumBlack
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = KernelV2
 
-local bar = Instance.new("Frame")
-bar.Parent = load
-bar.Position = UDim2.new(0,20,0,80)
-bar.Size = UDim2.new(0,0,0,16)
-bar.BackgroundColor3 = Color3.fromRGB(255,0,0)
-Instance.new("UICorner",bar)
+-- Tabs
+MainTab.Size = UDim2.new(0.5, 0, 0, 50)
+MainTab.Position = UDim2.new(0, 0, 0, 0)
+MainTab.BackgroundColor3 = premiumBlack
+MainTab.Text = "MAIN"
+MainTab.TextColor3 = Color3.fromRGB(150, 150, 150)
+MainTab.TextSize = 24
+MainTab.Font = Enum.Font.SourceSansBold
+MainTab.ZIndex = 2
+MainTab.Parent = MainFrame
 
-local txt = Instance.new("TextLabel")
-txt.Parent = load
-txt.Size = UDim2.new(1,0,0,40)
-txt.Text = "0%"
-txt.BackgroundTransparency = 1
-txt.TextColor3 = Color3.new(1,1,1)
-txt.Font = Enum.Font.GothamBold
-txt.TextScaled = true
+SettingsTab.Size = UDim2.new(0.5, 0, 0, 50)
+SettingsTab.Position = UDim2.new(0.5, 0, 0, 0)
+SettingsTab.BackgroundColor3 = accentRed
+SettingsTab.Text = "SETTINGS"
+SettingsTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+SettingsTab.TextSize = 24
+SettingsTab.Font = Enum.Font.SourceSansBold
+SettingsTab.ZIndex = 2
+SettingsTab.Parent = MainFrame
 
-for i=1,100 do
-    txt.Text = i.."%"
-    bar.Size = UDim2.new(i/100,-40,0,16)
-    wait(0.015)
-end
-load:Destroy()
+-- Content Frames
+MainContent.Size = UDim2.new(1, 0, 1, -50)
+MainContent.Position = UDim2.new(0, 0, 0, 50)
+MainContent.BackgroundColor3 = premiumBlack
+MainContent.BorderSizePixel = 0
+MainContent.Parent = MainFrame
 
---==================================================
--- DRAGGABLE
---==================================================
-local dragging=false
-local dragStart,startPos
+SettingsContent.Size = UDim2.new(1, 0, 1, -50)
+SettingsContent.Position = UDim2.new(0, 0, 0, 50)
+SettingsContent.BackgroundColor3 = premiumBlack
+SettingsContent.BorderSizePixel = 0
+SettingsContent.Parent = MainFrame
+SettingsContent.Visible = false
 
-main.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging=true
-        dragStart=input.Position
-        startPos=main.Position
+-- Toggle Template
+local function createToggle(parent, text, callback)
+    local toggle = ToggleTemplate:Clone()
+    toggle.Size = UDim2.new(1, 0, 0, 30)
+    toggle.Position = UDim2.new(0, 0, 0, 0)
+    toggle.BackgroundColor3 = premiumBlack
+    toggle.Text = text
+    toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggle.TextSize = 20
+    toggle.Font = Enum.Font.SourceSansBold
+    toggle.ZIndex = 2
+    toggle.Parent = parent
+
+    local circle = Instance.new("Frame")
+    circle.Size = UDim2.new(0.2, 0, 1, 0)
+    circle.Position = UDim2.new(0.8, 0, 0, 0)
+    circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    circle.BorderSizePixel = 0
+    circle.Parent = toggle
+
+    local function updateToggle(state)
+        circle:TweenPosition(UDim2.new(state and 0.8 or 0, 0, 0, 0), "Out", "Quad", 0.2, true)
+        circle.BackgroundColor3 = state and accentRed or Color3.fromRGB(255, 255, 255)
     end
-end)
 
-UIS.InputChanged:Connect(function(input)
-    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta=input.Position-dragStart
-        main.Position=UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset+delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset+delta.Y
-        )
-    end
-end)
-
-UIS.InputEnded:Connect(function(input)
-    if input.UserInputType==Enum.UserInputType.MouseButton1 then
-        dragging=false
-    end
-end)
-
---==================================================
--- LOGO OPEN/CLOSE
---==================================================
-logo.MouseButton1Click:Connect(function()
-    main.Visible = not main.Visible
-end)
-
---==================================================
--- TAB SYSTEM
---==================================================
-local tabs = {"Main","Movement","Visual","Settings"}
-local pages = {}
-
-for i,v in ipairs(tabs) do
-    local tab = Instance.new("TextButton")
-    tab.Parent = main
-    tab.Size = UDim2.new(0,150,0,35)
-    tab.Position = UDim2.new(0,(i-1)*160+20,0,60)
-    tab.Text = v
-    tab.BackgroundColor3 = Color3.fromRGB(20,20,20)
-    tab.TextColor3 = Color3.new(1,1,1)
-    tab.Font = Enum.Font.GothamBold
-    Instance.new("UICorner",tab)
-
-    local page = Instance.new("Frame")
-    page.Parent = main
-    page.Size = UDim2.new(1,-40,1,-120)
-    page.Position = UDim2.new(0,20,0,110)
-    page.BackgroundTransparency = 1
-    page.Visible = i==1
-    pages[v]=page
-
-    tab.MouseButton1Click:Connect(function()
-        for _,p in pairs(pages) do
-            p.Visible=false
-        end
-        page.Visible=true
+    toggle.MouseButton1Click:Connect(function()
+        updateToggle(not circle.Position.X.Scale == 0.8)
+        callback(not circle.Position.X.Scale == 0.8)
     end)
+
+    return toggle
 end
 
---==================================================
--- BUTTON MAKER
---==================================================
-local function makeButton(parent,text,y,callback)
-    local b=Instance.new("TextButton")
-    b.Parent=parent
-    b.Size=UDim2.new(0,220,0,42)
-    b.Position=UDim2.new(0,10,0,y)
-    b.Text=text
-    b.BackgroundColor3=Color3.fromRGB(22,22,22)
-    b.TextColor3=Color3.new(1,1,1)
-    b.Font=Enum.Font.GothamBold
-    Instance.new("UICorner",b)
+-- Main Content
+createToggle(MainContent, "ESP BOX", function(state)
+    -- ESP BOX logic
+end)
 
-    b.MouseButton1Click:Connect(function()
-        notify(text)
-        callback()
+createToggle(MainContent, "AUTO TOOL SLOT 1", function(state)
+    -- AUTO TOOL SLOT 1 logic
+end)
+
+createToggle(MainContent, "AUTO ACTION", function(state)
+    -- AUTO ACTION logic
+end)
+
+createToggle(MainContent, "START BOOST", function(state)
+    -- START BOOST logic
+end)
+
+createToggle(MainContent, "KILL AURA", function(state)
+    -- KILL AURA logic
+end)
+
+createToggle(MainContent, "AUTO KILL", function(state)
+    -- AUTO KILL logic
+end)
+
+createToggle(MainContent, "AUTO JOIN", function(state)
+    -- AUTO JOIN logic
+end)
+
+createToggle(MainContent, "SAVE SETTINGS", function(state)
+    -- SAVE SETTINGS logic
+end)
+
+createToggle(MainContent, "PLAYER TRACKER", function(state)
+    -- PLAYER TRACKER logic
+end)
+
+createToggle(MainContent, "ESP LINE", function(state)
+    -- ESP LINE logic
+end)
+
+-- Settings Content
+local function createSlider(parent, text, min, max, default, callback)
+    local slider = Instance.new("Frame")
+    slider.Size = UDim2.new(1, 0, 0, 50)
+    slider.Position = UDim2.new(0, 0, 0, 0)
+    slider.BackgroundColor3 = premiumBlack
+    slider.BorderSizePixel = 0
+    slider.Parent = parent
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Size = UDim2.new(0.5, 0, 1, 0)
+    textLabel.Position = UDim2.new(0, 0, 0, 0)
+    textLabel.BackgroundTransparency = 1
+    textLabel.Text = text
+    textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    textLabel.TextSize = 20
+    textLabel.Font = Enum.Font.SourceSansBold
+    textLabel.Parent = slider
+
+    local sliderBar = Instance.new("Frame")
+    sliderBar.Size = UDim2.new(0.5, 0, 0.2, 0)
+    sliderBar.Position = UDim2.new(0.5, 0, 0.4, 0)
+    sliderBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    sliderBar.BorderSizePixel = 0
+    sliderBar.Parent = slider
+
+    local function updateSlider(value)
+        sliderBar.Size = UDim2.new(value, 0, 0.2, 0)
+        callback(value)
+    end
+
+    sliderBar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            local function onInputChanged(input)
+                local newValue = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
+                updateSlider(newValue)
+            end
+
+            game:GetService("UserInputService").InputChanged:Connect(onInputChanged)
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    game:GetService("UserInputService").InputChanged:Disconnect(onInputChanged)
+                end
+            end)
+        end
     end)
+
+    updateSlider(default)
 end
 
---==================================================
--- MAIN FUNCTIONS
---==================================================
-local savedPos=nil
+createSlider(SettingsContent, "Transparency", 0, 1, 0.5, function(value)
+    -- Transparency logic
+end)
 
-makeButton(pages.Main,"Save Position",10,function()
-    local c=LocalPlayer.Character
-    if c and c:FindFirstChild("HumanoidRootPart") then
-        savedPos=c.HumanoidRootPart.CFrame
+createSlider(SettingsContent, "UI Scale", 0.5, 2, 1, function(value)
+    -- UI Scale logic
+end)
+
+local function createOption(parent, text, options, default, callback)
+    local option = Instance.new("TextButton")
+    option.Size = UDim2.new(1, 0, 0, 30)
+    option.Position = UDim2.new(0, 0, 0, 0)
+    option.BackgroundColor3 = premiumBlack
+    option.Text = text
+    option.TextColor3 = Color3.fromRGB(255, 255, 255)
+    option.TextSize = 20
+    option.Font = Enum.Font.SourceHansBold
+    option.ZIndex = 2
+    option.Parent = parent
+
+    local dropdown = Instance.new("Frame")
+    dropdown.Size = UDim2.new(1, 0, 0, 0)
+    dropdown.Position = UDim2.new(0, 0, 1, 0)
+    dropdown.BackgroundColor3 = premiumBlack
+    dropdown.BorderSizePixel = 0
+    dropdown.Parent = option
+
+    for _, v in ipairs(options) do
+        local item = Instance.new("TextButton")
+        item.Size = UDim2.new(1, 0, 0, 30)
+        item.Position = UDim2.new(0, 0, 0, 0)
+        item.BackgroundColor3 = premiumBlack
+        item.Text = v
+        item.TextColor3 = Color3.fromRGB(255, 255, 255)
+        item.TextSize = 20
+        item.Font = Enum.Font.SourceSansBold
+        item.ZIndex = 2
+        item.Parent = dropdown
+
+        item.MouseButton1Click:Connect(function()
+            option.Text = v
+            dropdown:TweenSize(UDim2.new(1, 0, 0, 0), "Out", "Quad", 0.2, true)
+            callback(v)
+        end)
     end
-end)
 
-makeButton(pages.Main,"Tele Saved Position",60,function()
-    local c=LocalPlayer.Character
-    if c and savedPos then
-        c.HumanoidRootPart.CFrame=savedPos
-    end
-end)
+    option.MouseButton1Click:Connect(function()
+        dropdown:TweenSize(UDim2.new(1, 0, 0, 30 * #options), "Out", "Quad", 0.2, true)
+    end)
 
-makeButton(pages.Main,"Rejoin Server",110,function()
-    TeleportService:Teleport(game.PlaceId,LocalPlayer)
-end)
-
---==================================================
--- PLAYER LIST
---==================================================
-local list = Instance.new("ScrollingFrame")
-list.Parent = pages.Main
-list.Size = UDim2.new(0,250,0,220)
-list.Position = UDim2.new(0,260,0,10)
-list.CanvasSize = UDim2.new(0,0,0,600)
-list.BackgroundColor3 = Color3.fromRGB(15,15,15)
-Instance.new("UICorner",list)
-
-for i,p in ipairs(Players:GetPlayers()) do
-    local t = Instance.new("TextLabel")
-    t.Parent = list
-    t.Size = UDim2.new(1,-10,0,35)
-    t.Position = UDim2.new(0,5,0,(i-1)*40)
-    t.Text = p.Name
-    t.TextColor3 = Color3.new(1,1,1)
-    t.BackgroundTransparency = 1
+    callback(default)
 end
 
---==================================================
--- MOVEMENT
---==================================================
-local speed=16
-local jump=50
-
-makeButton(pages.Movement,"Speed +5",10,function()
-    speed+=5
-    local h=LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    if h then h.WalkSpeed=speed end
+createOption(SettingsContent, "Accent Color", {"Red", "Blue", "Green", "Purple"}, "Red", function(value)
+    -- Accent Color logic
 end)
 
-makeButton(pages.Movement,"JumpPower +10",60,function()
-    jump+=10
-    local h=LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-    if h then h.JumpPower=jump end
-end)
+local function createToggleOption(parent, text, callback)
+    local toggle = Instance.new("TextButton")
+    toggle.Size = UDim2.new(1, 0, 0, 30)
+    toggle.Position = UDim2.new(0, 0, 0, 0)
+    toggle.BackgroundColor3 = premiumBlack
+    toggle.Text = text
+    toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggle.TextSize = 20
+    toggle.Font = Enum.Font.SourceSansBold
+    toggle.ZIndex = 2
+    toggle.Parent = parent
 
-local autoJump=false
-makeButton(pages.Movement,"Auto Jump ON/OFF",110,function()
-    autoJump=not autoJump
-end)
+    local circle = Instance.new("Frame")
+    circle.Size = UDim2.new(0.2, 0, 1, 0)
+    circle.Position = UDim2.new(0.8, 0, 0, 0)
+    circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    circle.BorderSizePixel = 0
+    circle.Parent = toggle
 
-spawn(function()
-    while true do
-        if autoJump then
-            local h=LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-            if h then h.Jump=true end
-        end
-        wait(0.25)
+    local function updateToggle(state)
+        circle:TweenPosition(UDim2.new(state and 0.8 or 0, 0, 0, 0), "Out", "Quad", 0.2, true)
+        circle.BackgroundColor3 = state and accentRed or Color3.fromRGB(255, 255, 255)
     end
+
+    toggle.MouseButton1Click:Connect(function()
+        updateToggle(not circle.Position.X.Scale == 0.8)
+        callback(not circle.Position.X.Scale == 0.8)
+    end)
+
+    return toggle
+end
+
+createToggleOption(SettingsContent, "Glow", function(state)
+    -- Glow logic
 end)
 
---==================================================
--- VISUAL
---==================================================
-local fov = Drawing.new("Circle")
-fov.Visible=false
-fov.Radius=120
-fov.Thickness=1
-fov.Color=Color3.fromRGB(255,0,0)
-
-makeButton(pages.Visual,"FOV Circle",10,function()
-    fov.Visible=not fov.Visible
+createToggleOption(SettingsContent, "Shadow", function(state)
+    -- Shadow logic
 end)
 
-RunService.RenderStepped:Connect(function()
-    fov.Position=Vector2.new(
-        workspace.CurrentCamera.ViewportSize.X/2,
-        workspace.CurrentCamera.ViewportSize.Y/2
-    )
+Instance.new("TextButton", SettingsContent).Text = "Reset Position"
+Instance.new("TextButton", SettingsContent).Text = "Close GUI"
+
+-- Tab Switching
+MainTab.MouseButton1Click:Connect(function()
+    MainTab.BackgroundColor3 = accentRed
+    MainTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SettingsTab.BackgroundColor3 = premiumBlack
+    SettingsTab.TextColor3 = Color3.fromRGB(150, 150, 150)
+    MainContent.Visible = true
+    SettingsContent.Visible = false
 end)
 
-makeButton(pages.Visual,"ESP Box Demo",60,function()
-    for _,p in pairs(Players:GetPlayers()) do
-        if p~=LocalPlayer and p.Character and not p.Character:FindFirstChild("Highlight") then
-            local h=Instance.new("Highlight")
-            h.FillTransparency=1
-            h.OutlineColor=Color3.fromRGB(255,0,0)
-            h.Parent=p.Character
-        end
-    end
+SettingsTab.MouseButton1Click:Connect(function()
+    SettingsTab.BackgroundColor3 = accentRed
+    SettingsTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+    MainTab.BackgroundColor3 = premiumBlack
+    MainTab.TextColor3 = Color3.fromRGB(150, 150, 150)
+    MainContent.Visible = false
+    SettingsContent.Visible = true
 end)
 
---==================================================
--- SETTINGS
---==================================================
-makeButton(pages.Settings,"Close GUI",10,function()
-    main.Visible=false
-end)
-
-makeButton(pages.Settings,"Destroy GUI",60,function()
-    gui:Destroy()
-end)
-
-makeButton(pages.Settings,"Reset Values",110,function()
-    speed=16
-    jump=50
-end)
-
-print("Premium V2 Loaded")
+-- Initial State
+MainTab:Click()
