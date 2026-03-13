@@ -1,22 +1,23 @@
 --// =========================================================
---// NGUYEN THANH PHU PREMIUM GUI
---// Style: Lee Hub / Kernel Premium Framework
---// By KernelX Style
+--// NGUYEN THANH PHU PREMIUM GUI V2
+--// Full Premium Framework Style Lee Hub / Kernel
 --// =========================================================
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
+local UIS = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 local TeleportService = game:GetService("TeleportService")
-
 local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse()
 
---=========================================================
+pcall(function()
+    game.CoreGui:FindFirstChild("KernelPremiumV2"):Destroy()
+end)
+
+--==================================================
 -- Notification
---=========================================================
+--==================================================
 local function notify(txt)
     pcall(function()
         StarterGui:SetCore("SendNotification",{
@@ -29,74 +30,58 @@ end
 
 notify("Script By KernelX")
 
---=========================================================
--- Remove old GUI
---=========================================================
-pcall(function()
-    game.CoreGui:FindFirstChild("KernelPremiumGUI"):Destroy()
-end)
-
---=========================================================
--- ScreenGui
---=========================================================
+--==================================================
+-- GUI ROOT
+--==================================================
 local gui = Instance.new("ScreenGui")
-gui.Name = "KernelPremiumGUI"
+gui.Name = "KernelPremiumV2"
 gui.Parent = game.CoreGui
 gui.ResetOnSpawn = false
 
---=========================================================
--- Logo Button
---=========================================================
+--==================================================
+-- LOGO BUTTON
+--==================================================
 local logo = Instance.new("TextButton")
 logo.Parent = gui
-logo.Size = UDim2.new(0,60,0,60)
-logo.Position = UDim2.new(0,20,0.5,-30)
+logo.Size = UDim2.new(0,58,0,58)
+logo.Position = UDim2.new(0,20,0.5,-29)
 logo.Text = "K"
-logo.TextColor3 = Color3.fromRGB(255,255,255)
+logo.Font = Enum.Font.GothamBlack
 logo.TextScaled = true
-logo.Font = Enum.Font.GothamBold
+logo.TextColor3 = Color3.new(1,1,1)
 logo.BackgroundColor3 = Color3.fromRGB(20,20,20)
-logo.AutoButtonColor = false
+Instance.new("UICorner",logo).CornerRadius = UDim.new(1,0)
 
-local logoCorner = Instance.new("UICorner",logo)
-logoCorner.CornerRadius = UDim.new(1,0)
+local logoStroke = Instance.new("UIStroke",logo)
+logoStroke.Color = Color3.fromRGB(255,0,0)
 
---=========================================================
--- Main Frame
---=========================================================
+--==================================================
+-- MAIN FRAME
+--==================================================
 local main = Instance.new("Frame")
 main.Parent = gui
-main.Size = UDim2.new(0,650,0,420)
-main.Position = UDim2.new(0.5,-325,0.5,-210)
+main.Size = UDim2.new(0,720,0,460)
+main.Position = UDim2.new(0.5,-360,0.5,-230)
 main.BackgroundColor3 = Color3.fromRGB(10,10,10)
+Instance.new("UICorner",main).CornerRadius = UDim.new(0,14)
 
-local mainCorner = Instance.new("UICorner",main)
-mainCorner.CornerRadius = UDim.new(0,14)
-
--- Glow
 local stroke = Instance.new("UIStroke",main)
 stroke.Color = Color3.fromRGB(255,0,0)
 stroke.Thickness = 1.5
 
---=========================================================
--- Shadow
---=========================================================
-local shadow = Instance.new("ImageLabel")
-shadow.Parent = main
-shadow.BackgroundTransparency = 1
-shadow.Size = UDim2.new(1,30,1,30)
-shadow.Position = UDim2.new(0,-15,0,-15)
-shadow.Image = "rbxassetid://1316045217"
-shadow.ImageTransparency = 0.5
-shadow.ScaleType = Enum.ScaleType.Slice
-shadow.SliceCenter = Rect.new(10,10,118,118)
-shadow.ZIndex = 0
+-- glow pulse
+spawn(function()
+    while true do
+        TweenService:Create(stroke,TweenInfo.new(1),{Transparency=0.3}):Play()
+        wait(1)
+        TweenService:Create(stroke,TweenInfo.new(1),{Transparency=0}):Play()
+        wait(1)
+    end
+end)
 
-main.ZIndex = 2
-
---=========================================================
--- Title Rainbow
---=========================================================
+--==================================================
+-- TITLE
+--==================================================
 local title = Instance.new("TextLabel")
 title.Parent = main
 title.Size = UDim2.new(1,0,0,50)
@@ -114,186 +99,253 @@ spawn(function()
     end
 end)
 
---=========================================================
--- Draggable
---=========================================================
-local dragging = false
-local dragInput, dragStart, startPos
+--==================================================
+-- LOADING
+--==================================================
+local load = Instance.new("Frame")
+load.Parent = gui
+load.Size = UDim2.new(0,420,0,130)
+load.Position = UDim2.new(0.5,-210,0.5,-65)
+load.BackgroundColor3 = Color3.fromRGB(15,15,15)
+Instance.new("UICorner",load)
+
+local bar = Instance.new("Frame")
+bar.Parent = load
+bar.Position = UDim2.new(0,20,0,80)
+bar.Size = UDim2.new(0,0,0,16)
+bar.BackgroundColor3 = Color3.fromRGB(255,0,0)
+Instance.new("UICorner",bar)
+
+local txt = Instance.new("TextLabel")
+txt.Parent = load
+txt.Size = UDim2.new(1,0,0,40)
+txt.Text = "0%"
+txt.BackgroundTransparency = 1
+txt.TextColor3 = Color3.new(1,1,1)
+txt.Font = Enum.Font.GothamBold
+txt.TextScaled = true
+
+for i=1,100 do
+    txt.Text = i.."%"
+    bar.Size = UDim2.new(i/100,-40,0,16)
+    wait(0.015)
+end
+load:Destroy()
+
+--==================================================
+-- DRAGGABLE
+--==================================================
+local dragging=false
+local dragStart,startPos
 
 main.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = main.Position
+        dragging=true
+        dragStart=input.Position
+        startPos=main.Position
     end
 end)
 
-main.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = false
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
+UIS.InputChanged:Connect(function(input)
     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - dragStart
-        main.Position = UDim2.new(
+        local delta=input.Position-dragStart
+        main.Position=UDim2.new(
             startPos.X.Scale,
-            startPos.X.Offset + delta.X,
+            startPos.X.Offset+delta.X,
             startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
+            startPos.Y.Offset+delta.Y
         )
     end
 end)
 
---=========================================================
--- Loading Frame
---=========================================================
-local loading = Instance.new("Frame")
-loading.Parent = gui
-loading.Size = UDim2.new(0,400,0,120)
-loading.Position = UDim2.new(0.5,-200,0.5,-60)
-loading.BackgroundColor3 = Color3.fromRGB(15,15,15)
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType==Enum.UserInputType.MouseButton1 then
+        dragging=false
+    end
+end)
 
-local lc = Instance.new("UICorner",loading)
-
-local bar = Instance.new("Frame")
-bar.Parent = loading
-bar.Size = UDim2.new(0,0,0,15)
-bar.Position = UDim2.new(0,20,0,70)
-bar.BackgroundColor3 = Color3.fromRGB(255,0,0)
-
-local percent = Instance.new("TextLabel")
-percent.Parent = loading
-percent.Size = UDim2.new(1,0,0,40)
-percent.Text = "0%"
-percent.BackgroundTransparency = 1
-percent.TextColor3 = Color3.new(1,1,1)
-percent.Font = Enum.Font.GothamBold
-percent.TextScaled = true
-
-for i=1,100 do
-    percent.Text = i.."%"
-    bar.Size = UDim2.new(i/100, -40,0,15)
-    wait(0.02)
-end
-
-loading:Destroy()
-
---=========================================================
--- Toggle Menu
---=========================================================
+--==================================================
+-- LOGO OPEN/CLOSE
+--==================================================
 logo.MouseButton1Click:Connect(function()
     main.Visible = not main.Visible
 end)
 
---=========================================================
--- Saved Position
---=========================================================
-local savedPos = nil
+--==================================================
+-- TAB SYSTEM
+--==================================================
+local tabs = {"Main","Movement","Visual","Settings"}
+local pages = {}
 
-local function savePos()
-    local char = LocalPlayer.Character
-    if char and char:FindFirstChild("HumanoidRootPart") then
-        savedPos = char.HumanoidRootPart.CFrame
-        notify("Saved Position")
-    end
+for i,v in ipairs(tabs) do
+    local tab = Instance.new("TextButton")
+    tab.Parent = main
+    tab.Size = UDim2.new(0,150,0,35)
+    tab.Position = UDim2.new(0,(i-1)*160+20,0,60)
+    tab.Text = v
+    tab.BackgroundColor3 = Color3.fromRGB(20,20,20)
+    tab.TextColor3 = Color3.new(1,1,1)
+    tab.Font = Enum.Font.GothamBold
+    Instance.new("UICorner",tab)
+
+    local page = Instance.new("Frame")
+    page.Parent = main
+    page.Size = UDim2.new(1,-40,1,-120)
+    page.Position = UDim2.new(0,20,0,110)
+    page.BackgroundTransparency = 1
+    page.Visible = i==1
+    pages[v]=page
+
+    tab.MouseButton1Click:Connect(function()
+        for _,p in pairs(pages) do
+            p.Visible=false
+        end
+        page.Visible=true
+    end)
 end
 
-local function telePos()
-    local char = LocalPlayer.Character
-    if char and savedPos then
-        char.HumanoidRootPart.CFrame = savedPos
-        notify("Teleported")
-    end
+--==================================================
+-- BUTTON MAKER
+--==================================================
+local function makeButton(parent,text,y,callback)
+    local b=Instance.new("TextButton")
+    b.Parent=parent
+    b.Size=UDim2.new(0,220,0,42)
+    b.Position=UDim2.new(0,10,0,y)
+    b.Text=text
+    b.BackgroundColor3=Color3.fromRGB(22,22,22)
+    b.TextColor3=Color3.new(1,1,1)
+    b.Font=Enum.Font.GothamBold
+    Instance.new("UICorner",b)
+
+    b.MouseButton1Click:Connect(function()
+        notify(text)
+        callback()
+    end)
 end
 
---=========================================================
--- Auto Jump
---=========================================================
-local autoJump = false
+--==================================================
+-- MAIN FUNCTIONS
+--==================================================
+local savedPos=nil
+
+makeButton(pages.Main,"Save Position",10,function()
+    local c=LocalPlayer.Character
+    if c and c:FindFirstChild("HumanoidRootPart") then
+        savedPos=c.HumanoidRootPart.CFrame
+    end
+end)
+
+makeButton(pages.Main,"Tele Saved Position",60,function()
+    local c=LocalPlayer.Character
+    if c and savedPos then
+        c.HumanoidRootPart.CFrame=savedPos
+    end
+end)
+
+makeButton(pages.Main,"Rejoin Server",110,function()
+    TeleportService:Teleport(game.PlaceId,LocalPlayer)
+end)
+
+--==================================================
+-- PLAYER LIST
+--==================================================
+local list = Instance.new("ScrollingFrame")
+list.Parent = pages.Main
+list.Size = UDim2.new(0,250,0,220)
+list.Position = UDim2.new(0,260,0,10)
+list.CanvasSize = UDim2.new(0,0,0,600)
+list.BackgroundColor3 = Color3.fromRGB(15,15,15)
+Instance.new("UICorner",list)
+
+for i,p in ipairs(Players:GetPlayers()) do
+    local t = Instance.new("TextLabel")
+    t.Parent = list
+    t.Size = UDim2.new(1,-10,0,35)
+    t.Position = UDim2.new(0,5,0,(i-1)*40)
+    t.Text = p.Name
+    t.TextColor3 = Color3.new(1,1,1)
+    t.BackgroundTransparency = 1
+end
+
+--==================================================
+-- MOVEMENT
+--==================================================
+local speed=16
+local jump=50
+
+makeButton(pages.Movement,"Speed +5",10,function()
+    speed+=5
+    local h=LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    if h then h.WalkSpeed=speed end
+end)
+
+makeButton(pages.Movement,"JumpPower +10",60,function()
+    jump+=10
+    local h=LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+    if h then h.JumpPower=jump end
+end)
+
+local autoJump=false
+makeButton(pages.Movement,"Auto Jump ON/OFF",110,function()
+    autoJump=not autoJump
+end)
+
 spawn(function()
     while true do
         if autoJump then
-            local hum = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-            if hum then
-                hum.Jump = true
-            end
+            local h=LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if h then h.Jump=true end
         end
-        wait(0.2)
+        wait(0.25)
     end
 end)
 
---=========================================================
--- Anti AFK
---=========================================================
-LocalPlayer.Idled:Connect(function()
-    local vu = game:GetService("VirtualUser")
-    vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-    wait(1)
-    vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-end)
-
---=========================================================
--- ESP BOX DEMO
---=========================================================
-local espEnabled = false
-local espObjects = {}
-
-local function createESP(player)
-    if player ~= LocalPlayer then
-        local box = Instance.new("Highlight")
-        box.FillTransparency = 1
-        box.OutlineColor = Color3.fromRGB(255,0,0)
-        box.Parent = player.Character
-        espObjects[player] = box
-    end
-end
-
---=========================================================
--- FOV Circle Demo
---=========================================================
+--==================================================
+-- VISUAL
+--==================================================
 local fov = Drawing.new("Circle")
-fov.Visible = false
-fov.Radius = 120
-fov.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X/2,workspace.CurrentCamera.ViewportSize.Y/2)
-fov.Color = Color3.fromRGB(255,0,0)
-fov.Thickness = 1
+fov.Visible=false
+fov.Radius=120
+fov.Thickness=1
+fov.Color=Color3.fromRGB(255,0,0)
+
+makeButton(pages.Visual,"FOV Circle",10,function()
+    fov.Visible=not fov.Visible
+end)
 
 RunService.RenderStepped:Connect(function()
-    fov.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X/2,workspace.CurrentCamera.ViewportSize.Y/2)
+    fov.Position=Vector2.new(
+        workspace.CurrentCamera.ViewportSize.X/2,
+        workspace.CurrentCamera.ViewportSize.Y/2
+    )
 end)
 
---=========================================================
--- Sample Buttons
---=========================================================
-local function createButton(text,pos,callback)
-    local btn = Instance.new("TextButton")
-    btn.Parent = main
-    btn.Size = UDim2.new(0,180,0,40)
-    btn.Position = pos
-    btn.Text = text
-    btn.Font = Enum.Font.GothamBold
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.BackgroundColor3 = Color3.fromRGB(25,25,25)
-    Instance.new("UICorner",btn)
-
-    btn.MouseButton1Click:Connect(callback)
-end
-
-createButton("Save Position",UDim2.new(0,20,0,80),savePos)
-createButton("Tele Saved Position",UDim2.new(0,20,0,130),telePos)
-
-createButton("Rejoin Server",UDim2.new(0,20,0,180),function()
-    TeleportService:Teleport(game.PlaceId, LocalPlayer)
+makeButton(pages.Visual,"ESP Box Demo",60,function()
+    for _,p in pairs(Players:GetPlayers()) do
+        if p~=LocalPlayer and p.Character and not p.Character:FindFirstChild("Highlight") then
+            local h=Instance.new("Highlight")
+            h.FillTransparency=1
+            h.OutlineColor=Color3.fromRGB(255,0,0)
+            h.Parent=p.Character
+        end
+    end
 end)
 
-createButton("Close GUI",UDim2.new(0,20,0,230),function()
-    main.Visible = false
+--==================================================
+-- SETTINGS
+--==================================================
+makeButton(pages.Settings,"Close GUI",10,function()
+    main.Visible=false
 end)
 
-createButton("Destroy GUI",UDim2.new(0,20,0,280),function()
+makeButton(pages.Settings,"Destroy GUI",60,function()
     gui:Destroy()
 end)
 
-print("Kernel Premium GUI Loaded")
+makeButton(pages.Settings,"Reset Values",110,function()
+    speed=16
+    jump=50
+end)
+
+print("Premium V2 Loaded")
