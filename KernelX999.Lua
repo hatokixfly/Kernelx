@@ -1,231 +1,420 @@
--- Kernel V2 GUI Script
-
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local VirtualUser = game:GetService("VirtualUser")
 local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
+
 local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
 
-local KernelV2 = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local LogoButton = Instance.new("TextButton")
-local LoadingPanel = Instance.new("Frame")
-local LoadingText = Instance.new("TextLabel")
-local LoadingBar = Instance.new("Frame")
-local MainTab = Instance.new("TextButton")
-local SettingsTab = Instance.new("TextButton")
-local MainContent = Instance.new("Frame")
-local SettingsContent = Instance.new("Frame")
+--------------------------------------------------
+-- CONFIG
+--------------------------------------------------
 
-KernelV2.Parent = player:WaitForChild("PlayerGui")
+local Accent = Color3.fromRGB(255,0,0)
 
--- Styles
-local premiumBlack = Color3.fromRGB(25, 25, 25)
-local accentRed = Color3.fromRGB(255, 0, 0)
-local darkBackground = Color3.fromRGB(15, 15, 15)
-local glowColor = Color3.fromRGB(255, 0, 0)
+--------------------------------------------------
+-- GUI ROOT
+--------------------------------------------------
 
--- Utility Functions
-local function createDraggable(frame)
-    local dragging
-    local dragInput
-    local dragStart
-    local startPos
+local gui = Instance.new("ScreenGui")
+gui.Name = "KernelxUI"
+gui.Parent = PlayerGui
+gui.ResetOnSpawn = false
 
-    local function update(input)
-        local delta = input.Position - dragStart
-        frame.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-    end
+--------------------------------------------------
+-- LOGO BUTTON
+--------------------------------------------------
 
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
+local logo = Instance.new("TextButton")
+logo.Parent = gui
+logo.Size = UDim2.new(0,70,0,70)
+logo.Position = UDim2.new(0,20,0.5,-35)
+logo.Text = "K"
+logo.TextColor3 = Accent
+logo.TextScaled = true
+logo.Font = Enum.Font.GothamBold
+logo.BackgroundColor3 = Color3.fromRGB(10,10,10)
+logo.BorderSizePixel = 0
+logo.AutoButtonColor = false
 
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
+local logoCorner = Instance.new("UICorner")
+logoCorner.CornerRadius = UDim.new(1,0)
+logoCorner.Parent = logo
 
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
+--------------------------------------------------
+-- MAIN FRAME
+--------------------------------------------------
 
-    UIS.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            update(input)
-        end
-    end)
+local main = Instance.new("Frame")
+main.Parent = gui
+main.Size = UDim2.new(0,780,0,480)
+main.Position = UDim2.new(0.5,-390,0.5,-240)
+main.BackgroundColor3 = Color3.fromRGB(5,5,5)
+main.BorderSizePixel = 0
+main.Visible = false
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0,18)
+corner.Parent = main
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Accent
+stroke.Thickness = 2
+stroke.Parent = main
+
+--------------------------------------------------
+-- HEADER
+--------------------------------------------------
+
+local header = Instance.new("TextLabel")
+header.Parent = main
+header.Size = UDim2.new(1,0,0,60)
+header.BackgroundTransparency = 1
+header.Text = "Kernelx"
+header.TextColor3 = Accent
+header.Font = Enum.Font.GothamBold
+header.TextScaled = true
+
+--------------------------------------------------
+-- LEFT PANEL
+--------------------------------------------------
+
+local left = Instance.new("Frame")
+left.Parent = main
+left.Size = UDim2.new(0,180,1,-70)
+left.Position = UDim2.new(0,10,0,65)
+left.BackgroundTransparency = 1
+
+local function createTab(name,y)
+	local b = Instance.new("TextButton")
+	b.Parent = left
+	b.Size = UDim2.new(1,0,0,55)
+	b.Position = UDim2.new(0,0,0,y)
+	b.Text = name
+	b.Font = Enum.Font.GothamBold
+	b.TextColor3 = Color3.new(1,1,1)
+	b.TextScaled = true
+	b.BackgroundColor3 = Color3.fromRGB(20,20,20)
+	b.BorderSizePixel = 0
+	
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0,12)
+	c.Parent = b
+	
+	return b
 end
 
--- Logo Button
-LogoButton.Size = UDim2.new(0, 50, 0, 50)
-LogoButton.Position = UDim2.new(0, 10, 0, 10)
-LogoButton.BackgroundColor3 = premiumBlack
-LogoButton.Text = "K"
-LogoButton.TextColor3 = accentRed
-LogoButton.TextSize = 24
-LogoButton.Font = Enum.Font.SourceSansBold
-LogoButton.ZIndex = 2
-LogoButton.Parent = KernelV2
+local mainTab = createTab("MAIN",0)
+local settingsTab = createTab("SETTINGS",70)
 
-createDraggable(LogoButton)
+--------------------------------------------------
+-- CONTENT FRAME
+--------------------------------------------------
 
--- Main Frame
-MainFrame.Size = UDim2.new(0, 600, 0, 400)
-MainFrame.Position = UDim2.new(0.5, -300, 1, 0)
-MainFrame.BackgroundColor3 = premiumBlack
-MainFrame.BorderSizePixel = 0
-MainFrame.Visible = false
-MainFrame.Parent = KernelV2
+local content = Instance.new("Frame")
+content.Parent = main
+content.Size = UDim2.new(1,-210,1,-90)
+content.Position = UDim2.new(0,200,0,75)
+content.BackgroundTransparency = 1
 
-LogoButton.MouseButton1Click:Connect(function()
-    if MainFrame.Visible then
-        MainFrame:TweenPosition(UDim2.new(0.5, -300, 1, 0), "Out", "Quad", 0.5, true)
-        task.wait(0.5)
-        MainFrame.Visible = false
-    else
-        MainFrame.Visible = true
-        MainFrame:TweenPosition(UDim2.new(0.5, -300, 0.5, -200), "Out", "Quad", 0.5, true)
-    end
+--------------------------------------------------
+-- NOTIFICATION
+--------------------------------------------------
+
+local function notify(text)
+	local n = Instance.new("TextLabel")
+	n.Parent = gui
+	n.Size = UDim2.new(0,280,0,50)
+	n.Position = UDim2.new(1,-300,0,40)
+	n.BackgroundColor3 = Color3.fromRGB(10,10,10)
+	n.TextColor3 = Color3.new(1,1,1)
+	n.Text = text
+	n.Font = Enum.Font.GothamBold
+	n.TextScaled = true
+	
+	local nc = Instance.new("UICorner")
+	nc.CornerRadius = UDim.new(0,12)
+	nc.Parent = n
+	
+	local ns = Instance.new("UIStroke")
+	ns.Color = Accent
+	ns.Parent = n
+	
+	n.TextTransparency = 1
+	n.BackgroundTransparency = 1
+	
+	TweenService:Create(n,TweenInfo.new(0.3),{
+		TextTransparency = 0,
+		BackgroundTransparency = 0
+	}):Play()
+	
+	task.wait(2)
+	
+	TweenService:Create(n,TweenInfo.new(0.3),{
+		TextTransparency = 1,
+		BackgroundTransparency = 1
+	}):Play()
+	
+	task.wait(0.4)
+	n:Destroy()
+end
+
+--------------------------------------------------
+-- TOGGLE CREATOR
+--------------------------------------------------
+
+local function createToggle(parent,name,y,callback)
+	local box = Instance.new("Frame")
+	box.Parent = parent
+	box.Size = UDim2.new(1,0,0,70)
+	box.Position = UDim2.new(0,0,0,y)
+	box.BackgroundColor3 = Color3.fromRGB(15,15,15)
+	box.BorderSizePixel = 0
+	
+	local bc = Instance.new("UICorner")
+	bc.CornerRadius = UDim.new(0,14)
+	bc.Parent = box
+	
+	local txt = Instance.new("TextLabel")
+	txt.Parent = box
+	txt.Size = UDim2.new(0.6,0,1,0)
+	txt.BackgroundTransparency = 1
+	txt.Text = name
+	txt.TextColor3 = Color3.new(1,1,1)
+	txt.Font = Enum.Font.GothamBold
+	txt.TextScaled = true
+	
+	local toggle = Instance.new("TextButton")
+	toggle.Parent = box
+	toggle.Size = UDim2.new(0,70,0,34)
+	toggle.Position = UDim2.new(1,-90,0.5,-17)
+	toggle.Text = ""
+	toggle.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	toggle.BorderSizePixel = 0
+	
+	local tc = Instance.new("UICorner")
+	tc.CornerRadius = UDim.new(1,0)
+	tc.Parent = toggle
+	
+	local knob = Instance.new("Frame")
+	knob.Parent = toggle
+	knob.Size = UDim2.new(0,28,0,28)
+	knob.Position = UDim2.new(0,3,0.5,-14)
+	knob.BackgroundColor3 = Color3.new(1,1,1)
+	knob.BorderSizePixel = 0
+	
+	local kc = Instance.new("UICorner")
+	kc.CornerRadius = UDim.new(1,0)
+	kc.Parent = knob
+	
+	local state = false
+	
+	toggle.MouseButton1Click:Connect(function()
+		state = not state
+		
+		if state then
+			TweenService:Create(toggle,TweenInfo.new(0.25),{
+				BackgroundColor3 = Accent
+			}):Play()
+			
+			TweenService:Create(knob,TweenInfo.new(0.25),{
+				Position = UDim2.new(1,-31,0.5,-14)
+			}):Play()
+		else
+			TweenService:Create(toggle,TweenInfo.new(0.25),{
+				BackgroundColor3 = Color3.fromRGB(40,40,40)
+			}):Play()
+			
+			TweenService:Create(knob,TweenInfo.new(0.25),{
+				Position = UDim2.new(0,3,0.5,-14)
+			}):Play()
+		end
+		
+		callback(state)
+	end)
+end
+
+--------------------------------------------------
+-- MAIN TAB
+--------------------------------------------------
+
+createToggle(content,"AUTO SLOT 1",0,function(v)
+	notify("AUTO SLOT 1 "..(v and "ENABLED" or "DISABLED"))
+	
+	if v then
+		task.spawn(function()
+			while v do
+				local char = player.Character
+				if char then
+					local tool = char:FindFirstChildOfClass("Tool")
+					if not tool then
+						local backpack = player:FindFirstChild("Backpack")
+						if backpack and backpack:FindFirstChildOfClass("Tool") then
+							backpack:FindFirstChildOfClass("Tool").Parent = char
+						end
+					end
+				end
+				task.wait(1)
+			end
+		end)
+	end
 end)
 
--- Loading Panel
-LoadingPanel.Size = UDim2.new(0, 300, 0, 150)
-LoadingPanel.Position = UDim2.new(0.5, -150, 0.5, -75)
-LoadingPanel.BackgroundColor3 = premiumBlack
-LoadingPanel.BorderSizePixel = 0
-LoadingPanel.Parent = KernelV2
+createToggle(content,"ANTI AFK",90,function(v)
+	notify("ANTI AFK "..(v and "ENABLED" or "DISABLED"))
+	
+	if v then
+		player.Idled:Connect(function()
+			VirtualUser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+			task.wait(1)
+			VirtualUser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+		end)
+	end
+end)
 
-LoadingText.Size = UDim2.new(1, 0, 0.5, 0)
-LoadingText.BackgroundTransparency = 1
-LoadingText.Text = "KERNEL V2"
-LoadingText.TextColor3 = accentRed
-LoadingText.TextSize = 48
-LoadingText.Font = Enum.Font.SourceSansBold
-LoadingText.Parent = LoadingPanel
+--------------------------------------------------
+-- SETTINGS TAB
+--------------------------------------------------
 
-LoadingBar.Size = UDim2.new(0, 0, 0.1, 0)
-LoadingBar.Position = UDim2.new(0, 0, 0.6, 0)
-LoadingBar.BackgroundColor3 = accentRed
-LoadingBar.Parent = LoadingPanel
+local settingsFrame = Instance.new("Frame")
+settingsFrame.Parent = content
+settingsFrame.Size = UDim2.new(1,0,1,0)
+settingsFrame.BackgroundTransparency = 1
+settingsFrame.Visible = false
+
+local fps = Instance.new("TextButton")
+fps.Parent = settingsFrame
+fps.Size = UDim2.new(0,220,0,50)
+fps.Text = "BOOST FPS"
+fps.BackgroundColor3 = Color3.fromRGB(20,20,20)
+fps.TextColor3 = Color3.new(1,1,1)
+
+fps.MouseButton1Click:Connect(function()
+	for _,v in pairs(workspace:GetDescendants()) do
+		if v:IsA("ParticleEmitter") or v:IsA("Trail") then
+			v.Enabled = false
+		end
+	end
+	notify("BOOST FPS APPLIED")
+end)
+
+--------------------------------------------------
+-- COLOR APPLY
+--------------------------------------------------
+
+local colors = {
+	RED = Color3.fromRGB(255,0,0),
+	BLUE = Color3.fromRGB(0,170,255),
+	YELLOW = Color3.fromRGB(255,255,0),
+	BLACK = Color3.fromRGB(30,30,30)
+}
+
+local x = 0
+for name,col in pairs(colors) do
+	local b = Instance.new("TextButton")
+	b.Parent = settingsFrame
+	b.Size = UDim2.new(0,100,0,40)
+	b.Position = UDim2.new(0,x,0,70)
+	b.Text = name
+	b.BackgroundColor3 = col
+	b.TextColor3 = Color3.new(1,1,1)
+	x += 110
+	
+	b.MouseButton1Click:Connect(function()
+		Accent = col
+		stroke.Color = Accent
+		header.TextColor3 = Accent
+		logo.TextColor3 = Accent
+		notify("COLOR APPLIED")
+	end)
+end
+
+--------------------------------------------------
+-- CREDIT
+--------------------------------------------------
+
+local credit = Instance.new("TextLabel")
+credit.Parent = settingsFrame
+credit.Position = UDim2.new(0,0,1,-50)
+credit.Size = UDim2.new(1,0,0,40)
+credit.BackgroundTransparency = 1
+credit.Text = "Script By: Nguyen Thanh Phu"
+credit.Font = Enum.Font.GothamBold
+credit.TextScaled = true
 
 task.spawn(function()
-    for i = 0, 100 do
-        LoadingBar.Size = UDim2.new(i / 100, 0, 0.1, 0)
-        task.wait(0.01)
-    end
-    LoadingPanel.Visible = false
-    MainFrame.Visible = true
-    MainFrame:TweenPosition(UDim2.new(0.5, -300, 0.5, -200), "Out", "Quad", 0.5, true)
+	while true do
+		for i=0,1,0.02 do
+			credit.TextColor3 = Color3.fromHSV(i,1,1)
+			task.wait()
+		end
+	end
 end)
 
--- Tabs
-MainTab.Size = UDim2.new(0.5, 0, 0, 50)
-MainTab.BackgroundColor3 = accentRed
-MainTab.Text = "MAIN"
-MainTab.TextColor3 = Color3.new(1,1,1)
-MainTab.Parent = MainFrame
+--------------------------------------------------
+-- TAB SWITCH
+--------------------------------------------------
 
-SettingsTab.Size = UDim2.new(0.5, 0, 0, 50)
-SettingsTab.Position = UDim2.new(0.5, 0, 0, 0)
-SettingsTab.BackgroundColor3 = premiumBlack
-SettingsTab.Text = "SETTINGS"
-SettingsTab.TextColor3 = Color3.fromRGB(150,150,150)
-SettingsTab.Parent = MainFrame
+mainTab.MouseButton1Click:Connect(function()
+	content.Visible = true
+	settingsFrame.Visible = false
+end)
 
--- Content
-MainContent.Size = UDim2.new(1,0,1,-50)
-MainContent.Position = UDim2.new(0,0,0,50)
-MainContent.BackgroundColor3 = premiumBlack
-MainContent.Parent = MainFrame
+settingsTab.MouseButton1Click:Connect(function()
+	content.Visible = false
+	settingsFrame.Visible = true
+end)
 
-SettingsContent.Size = UDim2.new(1,0,1,-50)
-SettingsContent.Position = UDim2.new(0,0,0,50)
-SettingsContent.BackgroundColor3 = premiumBlack
-SettingsContent.Visible = false
-SettingsContent.Parent = MainFrame
+--------------------------------------------------
+-- MENU OPEN CLOSE
+--------------------------------------------------
 
--- Toggle Template Fix
-local function createToggle(parent, text, callback)
-    local toggle = Instance.new("TextButton")
-    toggle.Size = UDim2.new(1, 0, 0, 30)
-    toggle.BackgroundColor3 = premiumBlack
-    toggle.Text = text
-    toggle.TextColor3 = Color3.new(1,1,1)
-    toggle.Font = Enum.Font.SourceSansBold
-    toggle.Parent = parent
+logo.MouseButton1Click:Connect(function()
+	main.Visible = not main.Visible
+	
+	if main.Visible then
+		main.Size = UDim2.new(0,0,0,0)
+		TweenService:Create(main,TweenInfo.new(0.35),{
+			Size = UDim2.new(0,780,0,480)
+		}):Play()
+	end
+end)
 
-    local circle = Instance.new("Frame")
-    circle.Size = UDim2.new(0.2,0,1,0)
-    circle.Position = UDim2.new(0,0,0,0)
-    circle.BackgroundColor3 = Color3.new(1,1,1)
-    circle.Parent = toggle
+--------------------------------------------------
+-- DRAG SYSTEM
+--------------------------------------------------
 
-    local state = false
-
-    local function updateToggle()
-        state = not state
-        circle:TweenPosition(
-            UDim2.new(state and 0.8 or 0,0,0,0),
-            "Out","Quad",0.2,true
-        )
-        circle.BackgroundColor3 = state and accentRed or Color3.new(1,1,1)
-        callback(state)
-    end
-
-    toggle.MouseButton1Click:Connect(updateToggle)
-
-    return toggle
+local function dragify(frame)
+	local dragToggle = nil
+	local dragStart
+	local startPos
+	
+	frame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragToggle = true
+			dragStart = input.Position
+			startPos = frame.Position
+		end
+	end)
+	
+	frame.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragToggle = false
+		end
+	end)
+	
+	UserInputService.InputChanged:Connect(function(input)
+		if dragToggle and input.UserInputType == Enum.UserInputType.MouseMovement then
+			local delta = input.Position - dragStart
+			frame.Position = UDim2.new(
+				startPos.X.Scale,
+				startPos.X.Offset + delta.X,
+				startPos.Y.Scale,
+				startPos.Y.Offset + delta.Y
+			)
+		end
+	end)
 end
 
--- Main Content
-createToggle(MainContent, "ESP BOX", function(state) end)
-createToggle(MainContent, "AUTO TOOL SLOT 1", function(state) end)
-createToggle(MainContent, "AUTO ACTION", function(state) end)
-createToggle(MainContent, "START BOOST", function(state) end)
-createToggle(MainContent, "KILL AURA", function(state) end)
-createToggle(MainContent, "AUTO KILL", function(state) end)
-createToggle(MainContent, "AUTO JOIN", function(state) end)
-createToggle(MainContent, "SAVE SETTINGS", function(state) end)
-createToggle(MainContent, "PLAYER TRACKER", function(state) end)
-createToggle(MainContent, "ESP LINE", function(state) end)
-
--- Slider Fix
-local function createSlider(parent, text, min, max, default, callback)
-    local slider = Instance.new("Frame")
-    slider.Size = UDim2.new(1,0,0,50)
-    slider.BackgroundColor3 = premiumBlack
-    slider.Parent = parent
-
-    local sliderBar = Instance.new("Frame")
-    sliderBar.Size = UDim2.new(default,0,0.2,0)
-    sliderBar.Position = UDim2.new(0.5,0,0.4,0)
-    sliderBar.BackgroundColor3 = Color3.new(1,1,1)
-    sliderBar.Parent = slider
-
-    callback(default)
-end
-
-createSlider(SettingsContent, "Transparency", 0, 1, 0.5, function(value) end)
-createSlider(SettingsContent, "UI Scale", 0.5, 2, 1, function(value) end)
-
--- Tab Switching
-MainTab.MouseButton1Click:Connect(function()
-    MainContent.Visible = true
-    SettingsContent.Visible = false
-end)
-
-SettingsTab.MouseButton1Click:Connect(function()
-    MainContent.Visible = false
-    SettingsContent.Visible = true
-end)
+dragify(main)
+dragify(logo)
