@@ -1,139 +1,196 @@
 local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 
 local player = Players.LocalPlayer
 
-------------------------------------------------
--- REMOVE OLD GUI
-------------------------------------------------
-
-if player.PlayerGui:FindFirstChild("PhuBaByStrength") then
-	player.PlayerGui.PhuBaByStrength:Destroy()
+--------------------------------------------------
+-- REMOTE EVENT
+--------------------------------------------------
+local remote = ReplicatedStorage:FindFirstChild("TradeControl")
+if not remote then
+	remote = Instance.new("RemoteEvent")
+	remote.Name = "TradeControl"
+	remote.Parent = ReplicatedStorage
 end
 
-------------------------------------------------
+--------------------------------------------------
 -- GUI
-------------------------------------------------
-
-local gui = Instance.new("ScreenGui")
-gui.Name = "PhuBaByStrength"
-gui.Parent = player.PlayerGui
+--------------------------------------------------
+local gui = Instance.new("ScreenGui", player.PlayerGui)
 gui.ResetOnSpawn = false
 
-------------------------------------------------
--- MAIN FRAME
-------------------------------------------------
+--------------------------------------------------
+-- LOGO
+--------------------------------------------------
+local logo = Instance.new("ImageButton", gui)
+logo.Size = UDim2.new(0,50,0,50)
+logo.Position = UDim2.new(0,50,0.4,0)
+logo.BackgroundColor3 = Color3.fromRGB(10,10,10)
+logo.Image = "rbxassetid://7733960981"
 
-local frame = Instance.new("Frame")
-frame.Parent = gui
-frame.Size = UDim2.new(0,250,0,150)
-frame.Position = UDim2.new(0.5,-125,0.5,-75)
-frame.BackgroundColor3 = Color3.fromRGB(10,10,10)
-frame.BorderSizePixel = 0
+Instance.new("UICorner",logo).CornerRadius = UDim.new(1,0)
 
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0,12)
+local ls = Instance.new("UIStroke",logo)
+ls.Color = Color3.fromRGB(255,0,0)
 
-------------------------------------------------
--- TITLE
-------------------------------------------------
+--------------------------------------------------
+-- MENU
+--------------------------------------------------
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0,290,0,170)
+frame.Position = UDim2.new(0.38,0,0.35,0)
+frame.BackgroundColor3 = Color3.fromRGB(8,8,8)
+frame.Visible = false
 
-local title = Instance.new("TextLabel")
-title.Parent = frame
+Instance.new("UICorner",frame).CornerRadius = UDim.new(0,14)
+
+local stroke = Instance.new("UIStroke",frame)
+stroke.Color = Color3.fromRGB(255,0,0)
+
+--------------------------------------------------
+-- TITLE 7 COLOR
+--------------------------------------------------
+local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1,0,0,35)
 title.BackgroundTransparency = 1
-title.Text = "PhuBaBy Strength"
-title.TextColor3 = Color3.fromRGB(255,50,50)
+title.Text = "PhuBaby"
 title.Font = Enum.Font.GothamBold
-title.TextScaled = true
+title.TextSize = 22
 
-------------------------------------------------
--- INPUT
-------------------------------------------------
-
-local box = Instance.new("TextBox")
-box.Parent = frame
-box.Size = UDim2.new(0,220,0,35)
-box.Position = UDim2.new(0.5,-110,0,45)
-box.BackgroundColor3 = Color3.fromRGB(25,25,25)
-box.TextColor3 = Color3.new(1,1,1)
-box.PlaceholderText = "Nhập sức mạnh..."
-box.Text = ""
-box.Font = Enum.Font.GothamBold
-box.TextScaled = true
-
-Instance.new("UICorner", box).CornerRadius = UDim.new(0,10)
-
-------------------------------------------------
--- START BUTTON
-------------------------------------------------
-
-local btn = Instance.new("TextButton")
-btn.Parent = frame
-btn.Size = UDim2.new(0,220,0,35)
-btn.Position = UDim2.new(0.5,-110,0,90)
-btn.BackgroundColor3 = Color3.fromRGB(255,50,50)
-btn.Text = "START SỨC MẠNH"
-btn.TextColor3 = Color3.new(1,1,1)
-btn.Font = Enum.Font.GothamBold
-btn.TextScaled = true
-
-Instance.new("UICorner", btn).CornerRadius = UDim.new(0,10)
-
-------------------------------------------------
--- CLOSE BUTTON
-------------------------------------------------
-
-local close = Instance.new("TextButton")
-close.Parent = frame
-close.Size = UDim2.new(0,25,0,25)
-close.Position = UDim2.new(1,-30,0,5)
-close.BackgroundColor3 = Color3.fromRGB(255,50,50)
-close.Text = "X"
-close.TextColor3 = Color3.new(1,1,1)
-close.Font = Enum.Font.GothamBold
-close.TextScaled = true
-
-Instance.new("UICorner", close).CornerRadius = UDim.new(1,0)
-
-close.MouseButton1Click:Connect(function()
-	gui:Destroy()
+task.spawn(function()
+	local colors = {
+		Color3.fromRGB(255,0,0),
+		Color3.fromRGB(255,120,0),
+		Color3.fromRGB(255,255,0),
+		Color3.fromRGB(0,255,0),
+		Color3.fromRGB(0,255,255),
+		Color3.fromRGB(0,0,255),
+		Color3.fromRGB(255,0,255)
+	}
+	local i = 1
+	while true do
+		title.TextColor3 = colors[i]
+		i = i % #colors + 1
+		task.wait(0.2)
+	end
 end)
 
-------------------------------------------------
--- FIND STAT
-------------------------------------------------
+--------------------------------------------------
+-- CLOSE
+--------------------------------------------------
+local close = Instance.new("TextButton", frame)
+close.Size = UDim2.new(0,26,0,26)
+close.Position = UDim2.new(1,-32,0,5)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(120,0,0)
+close.TextColor3 = Color3.new(1,1,1)
 
-local function findStat()
-	local stats = player:FindFirstChild("leaderstats")
-	if not stats then return nil end
+Instance.new("UICorner",close).CornerRadius = UDim.new(1,0)
 
-	for _,v in pairs(stats:GetChildren()) do
-		if v:IsA("IntValue") or v:IsA("NumberValue") then
-			return v
+--------------------------------------------------
+-- TOGGLE FUNCTION
+--------------------------------------------------
+function createToggle(name,yPos,signalName)
+	local holder = Instance.new("Frame", frame)
+	holder.Size = UDim2.new(0.9,0,0,42)
+	holder.Position = UDim2.new(0.05,0,0,yPos)
+	holder.BackgroundColor3 = Color3.fromRGB(18,18,18)
+
+	Instance.new("UICorner",holder).CornerRadius = UDim.new(0,12)
+
+	local txt = Instance.new("TextLabel", holder)
+	txt.Size = UDim2.new(0.6,0,1,0)
+	txt.BackgroundTransparency = 1
+	txt.Text = name
+	txt.TextColor3 = Color3.new(1,1,1)
+	txt.Font = Enum.Font.Gotham
+	txt.TextSize = 17
+
+	local toggle = Instance.new("TextButton", holder)
+	toggle.Size = UDim2.new(0,50,0,24)
+	toggle.Position = UDim2.new(1,-60,0.5,-12)
+	toggle.Text = ""
+	toggle.BackgroundColor3 = Color3.fromRGB(90,90,90)
+
+	Instance.new("UICorner",toggle).CornerRadius = UDim.new(1,0)
+
+	local knob = Instance.new("Frame", toggle)
+	knob.Size = UDim2.new(0,20,0,20)
+	knob.Position = UDim2.new(0,2,0,2)
+	knob.BackgroundColor3 = Color3.new(1,1,1)
+
+	Instance.new("UICorner",knob).CornerRadius = UDim.new(1,0)
+
+	local enabled = false
+
+	toggle.MouseButton1Click:Connect(function()
+		enabled = not enabled
+
+		if enabled then
+			toggle.BackgroundColor3 = Color3.fromRGB(255,0,0)
+			knob.Position = UDim2.new(1,-22,0,2)
+		else
+			toggle.BackgroundColor3 = Color3.fromRGB(90,90,90)
+			knob.Position = UDim2.new(0,2,0,2)
 		end
-	end
+
+		remote:FireServer(signalName, enabled)
+
+		StarterGui:SetCore("SendNotification", {
+			Title = name,
+			Text = enabled and "Đã bật" or "Đã tắt",
+			Duration = 2
+		})
+	end)
 end
 
-------------------------------------------------
--- START
-------------------------------------------------
+createToggle("Freeze Trade",45,"FreezeTrade")
+createToggle("Auto Accept",95,"AutoAccept")
 
-btn.MouseButton1Click:Connect(function()
+--------------------------------------------------
+-- OPEN/CLOSE
+--------------------------------------------------
+logo.MouseButton1Click:Connect(function()
+	frame.Visible = not frame.Visible
+end)
 
-	local value = tonumber(box.Text)
-	if not value then return end
+close.MouseButton1Click:Connect(function()
+	frame.Visible = false
+end)
 
-	local stat = findStat()
+--------------------------------------------------
+-- DRAG
+--------------------------------------------------
+function dragify(obj)
+	local dragToggle, dragInput, dragStart, startPos
 
-	if stat then
-		task.spawn(function()
-			while true do
-				stat.Value = value
-				task.wait()
-			end
-		end)
+	local function update(input)
+		local delta = input.Position - dragStart
+		obj.Position = UDim2.new(startPos.X.Scale,startPos.X.Offset+delta.X,startPos.Y.Scale,startPos.Y.Offset+delta.Y)
 	end
 
-	gui:Destroy()
+	obj.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragToggle = true
+			dragStart = input.Position
+			startPos = obj.Position
+		end
+	end)
 
-end)
+	obj.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement then
+			dragInput = input
+		end
+	end)
+
+	UIS.InputChanged:Connect(function(input)
+		if input == dragInput and dragToggle then
+			update(input)
+		end
+	end)
+end
+
+dragify(frame)
+dragify(logo)
