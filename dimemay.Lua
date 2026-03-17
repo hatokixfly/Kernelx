@@ -1,4 +1,4 @@
---// PhuBaBy Compact Full Fixed
+--// PhuBaBy Auto Pet Strong Fix
 
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -9,13 +9,7 @@ local char = player.Character or player.CharacterAdded:Wait()
 local hrp = char:WaitForChild("HumanoidRootPart")
 local humanoid = char:WaitForChild("Humanoid")
 
-------------------------------------------------
--- STATE
-------------------------------------------------
-
 local savedBase = nil
-local autoJump = false
-local antiAfk = false
 local autoPet = false
 
 ------------------------------------------------
@@ -24,46 +18,35 @@ local autoPet = false
 
 local gui = Instance.new("ScreenGui", player.PlayerGui)
 gui.ResetOnSpawn = false
-gui.Name = "PhuBaByGUI"
-
-------------------------------------------------
--- LOGO
-------------------------------------------------
 
 local logo = Instance.new("TextButton", gui)
 logo.Size = UDim2.new(0,55,0,55)
 logo.Position = UDim2.new(0,20,0.4,0)
 logo.Text = "P"
-logo.Font = Enum.Font.GothamBold
-logo.TextScaled = true
 logo.BackgroundColor3 = Color3.fromRGB(20,20,20)
 logo.TextColor3 = Color3.new(1,1,1)
-
+logo.Font = Enum.Font.GothamBold
+logo.TextScaled = true
 Instance.new("UICorner",logo).CornerRadius = UDim.new(1,0)
 
-------------------------------------------------
--- FRAME
-------------------------------------------------
-
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0,280,0,260)
-frame.Position = UDim2.new(0.5,-140,0.5,-130)
+frame.Size = UDim2.new(0,280,0,180)
+frame.Position = UDim2.new(0.5,-140,0.5,-90)
 frame.BackgroundColor3 = Color3.fromRGB(15,15,15)
 frame.Visible = false
-
 Instance.new("UICorner",frame)
 
 ------------------------------------------------
 -- NOTIFY
 ------------------------------------------------
 
-local function notify(txt)
+local function notify(t)
 
 	local n = Instance.new("TextLabel", gui)
 	n.Size = UDim2.new(0,200,0,45)
 	n.Position = UDim2.new(1,220,0.1,0)
 	n.BackgroundColor3 = Color3.fromRGB(20,20,20)
-	n.Text = txt
+	n.Text = t
 	n.TextColor3 = Color3.new(1,1,1)
 	n.Font = Enum.Font.GothamBold
 	n.TextScaled = true
@@ -76,55 +59,7 @@ local function notify(txt)
 
 	task.wait(2)
 
-	TweenService:Create(n,TweenInfo.new(.3),{
-		TextTransparency = 1,
-		BackgroundTransparency = 1
-	}):Play()
-
-	task.wait(.3)
 	n:Destroy()
-
-end
-
-------------------------------------------------
--- BUTTON MAKER
-------------------------------------------------
-
-local y = 10
-
-local function createToggle(name, callback)
-
-	local btn = Instance.new("TextButton", frame)
-	btn.Size = UDim2.new(1,-20,0,40)
-	btn.Position = UDim2.new(0,10,0,y)
-	btn.BackgroundColor3 = Color3.fromRGB(30,30,30)
-	btn.TextColor3 = Color3.new(1,1,1)
-	btn.Text = name.." [OFF]"
-	btn.Font = Enum.Font.GothamBold
-
-	Instance.new("UICorner",btn)
-
-	local state = false
-
-	btn.MouseButton1Click:Connect(function()
-
-		state = not state
-
-		if state then
-			btn.Text = name.." [ON]"
-			btn.BackgroundColor3 = Color3.fromRGB(255,40,40)
-			notify("[✓] "..name.." ON")
-		else
-			btn.Text = name.." [OFF]"
-			btn.BackgroundColor3 = Color3.fromRGB(30,30,30)
-			notify("[✕] "..name.." OFF")
-		end
-
-		callback(state)
-
-	end)
-
-	y += 45
 
 end
 
@@ -132,56 +67,55 @@ end
 -- SAVE BASE
 ------------------------------------------------
 
-local saveBtn = Instance.new("TextButton", frame)
-saveBtn.Size = UDim2.new(1,-20,0,40)
-saveBtn.Position = UDim2.new(0,10,0,y)
-saveBtn.Text = "Save Base"
-saveBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
-saveBtn.TextColor3 = Color3.new(1,1,1)
+local save = Instance.new("TextButton", frame)
+save.Size = UDim2.new(1,-20,0,40)
+save.Position = UDim2.new(0,10,0,10)
+save.Text = "Save Base"
+save.BackgroundColor3 = Color3.fromRGB(40,40,40)
+save.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner",save)
 
-Instance.new("UICorner",saveBtn)
-
-saveBtn.MouseButton1Click:Connect(function()
+save.MouseButton1Click:Connect(function()
 	savedBase = hrp.CFrame
 	notify("[✓] Base Saved")
 end)
 
-y += 45
-
 ------------------------------------------------
--- TELEPORT BASE
+-- AUTO PET TOGGLE
 ------------------------------------------------
 
-local tpBtn = Instance.new("TextButton", frame)
-tpBtn.Size = UDim2.new(1,-20,0,40)
-tpBtn.Position = UDim2.new(0,10,0,y)
-tpBtn.Text = "Teleport Base"
-tpBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
-tpBtn.TextColor3 = Color3.new(1,1,1)
+local toggle = Instance.new("TextButton", frame)
+toggle.Size = UDim2.new(1,-20,0,40)
+toggle.Position = UDim2.new(0,10,0,60)
+toggle.Text = "Auto Pet [OFF]"
+toggle.BackgroundColor3 = Color3.fromRGB(30,30,30)
+toggle.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner",toggle)
 
-Instance.new("UICorner",tpBtn)
+toggle.MouseButton1Click:Connect(function()
 
-tpBtn.MouseButton1Click:Connect(function()
-	if savedBase then
-		hrp.CFrame = savedBase
-		notify("[✓] Teleported")
+	autoPet = not autoPet
+
+	if autoPet then
+		toggle.Text = "Auto Pet [ON]"
+		toggle.BackgroundColor3 = Color3.fromRGB(255,40,40)
+		notify("[✓] Auto Pet ON")
+	else
+		toggle.Text = "Auto Pet [OFF]"
+		toggle.BackgroundColor3 = Color3.fromRGB(30,30,30)
+		notify("[✕] Auto Pet OFF")
 	end
+
 end)
 
-y += 45
-
 ------------------------------------------------
--- AUTO PET
+-- FORCE AUTO PET
 ------------------------------------------------
-
-createToggle("Auto Pet", function(v)
-	autoPet = v
-end)
 
 task.spawn(function()
 
 	while true do
-		task.wait(0.3)
+		task.wait(0.03)
 
 		if autoPet and savedBase then
 
@@ -194,46 +128,25 @@ task.spawn(function()
 			end
 
 			if carrying then
-				hrp.CFrame = savedBase
-				task.wait(1)
+
+				for i = 1,20 do
+
+					hrp.CFrame = hrp.CFrame + Vector3.new(0,3,0)
+					task.wait(0.02)
+
+					hrp.CFrame = savedBase + Vector3.new(0,3,0)
+					task.wait(0.02)
+
+					hrp.CFrame = savedBase
+
+				end
+
 			end
 
 		end
 
 	end
 
-end)
-
-------------------------------------------------
--- AUTO JUMP
-------------------------------------------------
-
-createToggle("Auto Jump", function(v)
-	autoJump = v
-end)
-
-task.spawn(function()
-	while true do
-		task.wait(1)
-		if autoJump then
-			humanoid.Jump = true
-		end
-	end
-end)
-
-------------------------------------------------
--- ANTI AFK
-------------------------------------------------
-
-createToggle("Anti AFK", function(v)
-	antiAfk = v
-end)
-
-player.Idled:Connect(function()
-	if antiAfk then
-		VirtualUser:CaptureController()
-		VirtualUser:ClickButton2(Vector2.new())
-	end
 end)
 
 ------------------------------------------------
