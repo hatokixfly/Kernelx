@@ -1,5 +1,3 @@
--- PhuBaBy Strength GUI
-
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
@@ -15,8 +13,8 @@ gui.ResetOnSpawn = false
 
 local frame = Instance.new("Frame")
 frame.Parent = gui
-frame.Size = UDim2.new(0,260,0,160)
-frame.Position = UDim2.new(0.5,-130,0.5,-80)
+frame.Size = UDim2.new(0,260,0,180)
+frame.Position = UDim2.new(0.5,-130,0.5,-90)
 frame.BackgroundColor3 = Color3.fromRGB(15,15,15)
 
 Instance.new("UICorner", frame)
@@ -52,7 +50,7 @@ box.TextScaled = true
 Instance.new("UICorner", box)
 
 ------------------------------------------------
--- BUTTON
+-- START BUTTON
 ------------------------------------------------
 
 local btn = Instance.new("TextButton")
@@ -68,13 +66,33 @@ btn.TextScaled = true
 Instance.new("UICorner", btn)
 
 ------------------------------------------------
+-- CLOSE BUTTON
+------------------------------------------------
+
+local close = Instance.new("TextButton")
+close.Parent = frame
+close.Size = UDim2.new(0,30,0,30)
+close.Position = UDim2.new(1,-35,0,5)
+close.Text = "X"
+close.BackgroundColor3 = Color3.fromRGB(255,40,40)
+close.TextColor3 = Color3.new(1,1,1)
+close.Font = Enum.Font.GothamBold
+close.TextScaled = true
+
+Instance.new("UICorner", close)
+
+close.MouseButton1Click:Connect(function()
+	gui:Destroy()
+end)
+
+------------------------------------------------
 -- NOTIFY
 ------------------------------------------------
 
 local function notify(txt)
 	local n = Instance.new("TextLabel")
 	n.Parent = gui
-	n.Size = UDim2.new(0,200,0,40)
+	n.Size = UDim2.new(0,220,0,50)
 	n.Position = UDim2.new(1,220,0.1,0)
 	n.BackgroundColor3 = Color3.fromRGB(20,20,20)
 	n.Text = txt
@@ -84,7 +102,7 @@ local function notify(txt)
 	Instance.new("UICorner", n)
 
 	TweenService:Create(n,TweenInfo.new(.3),{
-		Position = UDim2.new(1,-210,0.1,0)
+		Position = UDim2.new(1,-230,0.1,0)
 	}):Play()
 
 	task.wait(2)
@@ -92,25 +110,54 @@ local function notify(txt)
 end
 
 ------------------------------------------------
--- APPLY STRENGTH
+-- FIND STRENGTH
+------------------------------------------------
+
+local function findStrength()
+
+	local paths = {
+		player:FindFirstChild("leaderstats"),
+		player:FindFirstChild("Data"),
+		player:FindFirstChild("Stats")
+	}
+
+	for _,folder in pairs(paths) do
+		if folder then
+			for _,v in pairs(folder:GetChildren()) do
+				if string.lower(v.Name):find("strength") then
+					return v
+				end
+			end
+		end
+	end
+
+	return nil
+end
+
+------------------------------------------------
+-- START
 ------------------------------------------------
 
 btn.MouseButton1Click:Connect(function()
 
 	local value = tonumber(box.Text)
 
-	if value then
+	if not value then
+		notify("❌ Nhập số hợp lệ")
+		return
+	end
 
-		local stats = player:FindFirstChild("leaderstats")
-		if stats and stats:FindFirstChild("Strength") then
-			stats.Strength.Value = value
-			notify("✅ Thành công: "..value)
-		else
-			notify("❌ Không tìm thấy Strength")
-		end
+	local strength = findStrength()
+
+	if strength then
+		strength.Value = value
+		notify("✅ Thành công: "..value)
+
+		task.wait(1)
+		gui:Destroy() -- close menu sau khi thành công
 
 	else
-		notify("❌ Nhập số hợp lệ")
+		notify("❌ Không tìm thấy Strength")
 	end
 
 end)
