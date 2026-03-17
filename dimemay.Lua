@@ -1,4 +1,3 @@
-lua id="7q2n8v"
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
