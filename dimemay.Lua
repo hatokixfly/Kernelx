@@ -50,7 +50,7 @@ box.TextScaled = true
 Instance.new("UICorner", box)
 
 ------------------------------------------------
--- START BUTTON
+-- START
 ------------------------------------------------
 
 local btn = Instance.new("TextButton")
@@ -110,7 +110,29 @@ local function notify(txt)
 end
 
 ------------------------------------------------
--- FORCE STRENGTH
+-- AUTO FIND REAL STAT
+------------------------------------------------
+
+local function findMainStat()
+
+	local stats = player:FindFirstChild("leaderstats")
+	if not stats then return nil end
+
+	local biggest = nil
+
+	for _,v in pairs(stats:GetChildren()) do
+		if v:IsA("IntValue") or v:IsA("NumberValue") then
+			if not biggest or v.Value > biggest.Value then
+				biggest = v
+			end
+		end
+	end
+
+	return biggest
+end
+
+------------------------------------------------
+-- START
 ------------------------------------------------
 
 btn.MouseButton1Click:Connect(function()
@@ -122,15 +144,15 @@ btn.MouseButton1Click:Connect(function()
 		return
 	end
 
-	local stats = player:FindFirstChild("leaderstats")
+	local stat = findMainStat()
 
-	if stats and stats:FindFirstChild("Strength") then
+	if stat then
 
-		notify("✅ Force Strength: "..value)
+		notify("✅ Force "..stat.Name)
 
 		task.spawn(function()
 			while true do
-				stats.Strength.Value = value
+				stat.Value = value
 				task.wait()
 			end
 		end)
@@ -139,7 +161,7 @@ btn.MouseButton1Click:Connect(function()
 		gui:Destroy()
 
 	else
-		notify("❌ Không tìm thấy Strength")
+		notify("❌ Không tìm thấy stat")
 	end
 
 end)
