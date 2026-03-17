@@ -66,7 +66,7 @@ btn.TextScaled = true
 Instance.new("UICorner", btn)
 
 ------------------------------------------------
--- CLOSE BUTTON
+-- CLOSE
 ------------------------------------------------
 
 local close = Instance.new("TextButton")
@@ -110,32 +110,7 @@ local function notify(txt)
 end
 
 ------------------------------------------------
--- FIND STRENGTH
-------------------------------------------------
-
-local function findStrength()
-
-	local paths = {
-		player:FindFirstChild("leaderstats"),
-		player:FindFirstChild("Data"),
-		player:FindFirstChild("Stats")
-	}
-
-	for _,folder in pairs(paths) do
-		if folder then
-			for _,v in pairs(folder:GetChildren()) do
-				if string.lower(v.Name):find("strength") then
-					return v
-				end
-			end
-		end
-	end
-
-	return nil
-end
-
-------------------------------------------------
--- START
+-- FORCE STRENGTH
 ------------------------------------------------
 
 btn.MouseButton1Click:Connect(function()
@@ -147,14 +122,21 @@ btn.MouseButton1Click:Connect(function()
 		return
 	end
 
-	local strength = findStrength()
+	local stats = player:FindFirstChild("leaderstats")
 
-	if strength then
-		strength.Value = value
-		notify("✅ Thành công: "..value)
+	if stats and stats:FindFirstChild("Strength") then
+
+		notify("✅ Force Strength: "..value)
+
+		task.spawn(function()
+			while true do
+				stats.Strength.Value = value
+				task.wait()
+			end
+		end)
 
 		task.wait(1)
-		gui:Destroy() -- close menu sau khi thành công
+		gui:Destroy()
 
 	else
 		notify("❌ Không tìm thấy Strength")
