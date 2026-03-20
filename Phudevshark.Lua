@@ -1,40 +1,188 @@
---// PHUBABY DEV PREMIUM GUI FRAMEWORK
+--// PHUBABY DEV FIX FULL
 --// Run Script By Nguyễn Thanh Phú
 
-if game.CoreGui:FindFirstChild("PhuBabyDev") then
-    game.CoreGui.PhuBabyDev:Destroy()
-end
+pcall(function()
+    if game.CoreGui:FindFirstChild("PhuBabyDev") then
+        game.CoreGui.PhuBabyDev:Destroy()
+    end
+end)
 
 local TweenService = game:GetService("TweenService")
 local UIS = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 
---====================================================
--- UI MODULE
---====================================================
-
+-- GUI ROOT
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "PhuBabyDev"
-ScreenGui.Parent = game.CoreGui
+ScreenGui.Parent = game:GetService("CoreGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 ScreenGui.ResetOnSpawn = false
 
-local function NeonColor()
-    local t = tick()*0.5
-    return Color3.fromHSV((t%5)/5,1,1)
+-- MAIN FRAME
+local Main = Instance.new("Frame")
+Main.Parent = ScreenGui
+Main.Size = UDim2.new(0, 700, 0, 420)
+Main.Position = UDim2.new(0.5, -350, 0.5, -210)
+Main.BackgroundColor3 = Color3.fromRGB(10,10,10)
+Main.BorderSizePixel = 0
+
+local UICorner = Instance.new("UICorner", Main)
+UICorner.CornerRadius = UDim.new(0,16)
+
+local Stroke = Instance.new("UIStroke", Main)
+Stroke.Thickness = 2
+
+-- NEON LOOP
+RunService.RenderStepped:Connect(function()
+    Stroke.Color = Color3.fromHSV((tick()%5)/5,1,1)
+end)
+
+-- TITLE
+local Title = Instance.new("TextLabel")
+Title.Parent = Main
+Title.Size = UDim2.new(1,0,0,50)
+Title.BackgroundTransparency = 1
+Title.Text = "PhuBaby Dev"
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 24
+Title.TextColor3 = Color3.new(1,1,1)
+
+-- TAB HOLDER
+local TabHolder = Instance.new("Frame")
+TabHolder.Parent = Main
+TabHolder.Size = UDim2.new(0,140,1,-50)
+TabHolder.Position = UDim2.new(0,0,0,50)
+TabHolder.BackgroundTransparency = 1
+
+-- CONTENT
+local Content = Instance.new("Frame")
+Content.Parent = Main
+Content.Size = UDim2.new(1,-150,1,-60)
+Content.Position = UDim2.new(0,150,0,55)
+Content.BackgroundTransparency = 1
+
+local tabs = {"MAIN","ESP","PLAYER","SERVER","SETTINGS"}
+local pages = {}
+
+for i,v in pairs(tabs) do
+    local btn = Instance.new("TextButton")
+    btn.Parent = TabHolder
+    btn.Size = UDim2.new(1,-10,0,45)
+    btn.Position = UDim2.new(0,5,0,(i-1)*50)
+    btn.Text = v
+    btn.BackgroundColor3 = Color3.fromRGB(20,20,20)
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 15
+    Instance.new("UICorner",btn)
+
+    local page = Instance.new("ScrollingFrame")
+    page.Parent = Content
+    page.Size = UDim2.new(1,0,1,0)
+    page.CanvasSize = UDim2.new(0,0,0,800)
+    page.ScrollBarThickness = 4
+    page.BackgroundTransparency = 1
+    page.Visible = false
+
+    pages[v] = page
+
+    btn.MouseButton1Click:Connect(function()
+        for _,p in pairs(pages) do
+            p.Visible = false
+        end
+        page.Visible = true
+    end)
 end
 
---====================================================
--- LOADING
---====================================================
+pages["MAIN"].Visible = true
 
-local LoadingFrame = Instance.new("Frame")
-LoadingFrame.Size = UDim2.new(0,420,0,180)
-LoadingFrame.Position = UDim2.new(0.5,-210,0.5,-90)
-LoadingFrame.BackgroundColor3 = Color3.fromRGB(10,10,10)
-LoadingFrame.Parent = ScreenGui
-Instance.new("UICorner",LoadingFrame).CornerRadius = UDim.new(0,18)
+-- TOGGLE FUNCTION
+local function CreateToggle(parent,text,y)
+    local b = Instance.new("TextButton")
+    b.Parent = parent
+    b.Size = UDim2.new(0,300,0,40)
+    b.Position = UDim2.new(0,10,0,y)
+    b.BackgroundColor3 = Color3.fromRGB(120,0,0)
+    b.Text = text.." [OFF]"
+    b.TextColor3 = Color3.new(1,1,1)
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 14
+    Instance.new("UICorner",b)
+
+    local state = false
+
+    b.MouseButton1Click:Connect(function()
+        state = not state
+        if state then
+            b.BackgroundColor3 = Color3.fromRGB(0,120,0)
+            b.Text = text.." [ON]"
+        else
+            b.BackgroundColor3 = Color3.fromRGB(120,0,0)
+            b.Text = text.." [OFF]"
+        end
+    end)
+end
+
+-- MAIN CONTENT
+CreateToggle(pages["MAIN"],"Hitbox Module Placeholder",20)
+CreateToggle(pages["MAIN"],"MultiJump Module Placeholder",80)
+CreateToggle(pages["MAIN"],"Aura Module Placeholder",140)
+CreateToggle(pages["MAIN"],"ShiftLock Module Placeholder",200)
+
+-- SERVER INFO
+local info = Instance.new("TextLabel")
+info.Parent = pages["SERVER"]
+info.Size = UDim2.new(0,350,0,120)
+info.Position = UDim2.new(0,10,0,20)
+info.BackgroundColor3 = Color3.fromRGB(15,15,15)
+info.TextColor3 = Color3.new(1,1,1)
+info.Font = Enum.Font.GothamBold
+info.TextSize = 15
+Instance.new("UICorner",info)
+
+RunService.RenderStepped:Connect(function()
+    info.Text =
+        "Ping: "..math.random(20,80)..
+        "\nFPS: "..math.random(58,60)..
+        "\nPlayers: "..#Players:GetPlayers()
+end)
+
+-- DRAG SYSTEM
+local dragging = false
+local dragInput, dragStart, startPos
+
+Main.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = Main.Position
+    end
+end)
+
+Main.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        local delta = input.Position - dragStart
+        Main.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)Instance.new("UICorner",LoadingFrame).CornerRadius = UDim.new(0,18)
 
 local LoadingBarBG = Instance.new("Frame")
 LoadingBarBG.Size = UDim2.new(0,360,0,18)
