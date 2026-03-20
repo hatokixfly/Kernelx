@@ -1,40 +1,378 @@
--- PhuBaby Dev Premium GUI Framework (Loadstring Ready) -- Premium UI Framework for private game framework / placeholder modules -- Run Script By Nguyễn Thanh Phú
+--// PHUBABY DEV PREMIUM GUI FRAMEWORK
+--// Run Script By Nguyễn Thanh Phú
 
-local Players = game:GetService("Players") local TweenService = game:GetService("TweenService") local RunService = game:GetService("RunService") local UserInputService = game:GetService("UserInputService") local StarterGui = game:GetService("StarterGui") local LocalPlayer = Players.LocalPlayer local Mouse = LocalPlayer:GetMouse()
+if game.CoreGui:FindFirstChild("PhuBabyDev") then
+    game.CoreGui.PhuBabyDev:Destroy()
+end
 
-local Framework = {} local Theme = { Hue = 0, Accent = Color3.fromHSV(0,1,1), Background = Color3.fromRGB(10,10,10), Secondary = Color3.fromRGB(18,18,18), Text = Color3.fromRGB(255,255,255) }
+local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-local function Notify(title,text) pcall(function() StarterGui:SetCore("SendNotification",{ Title = title, Text = text, Duration = 3 }) end) end
+--====================================================
+-- UI MODULE
+--====================================================
 
-RunService.RenderStepped:Connect(function() Theme.Hue = (tick()*0.15)%1 Theme.Accent = Color3.fromHSV(Theme.Hue,1,1) end)
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "PhuBabyDev"
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ResetOnSpawn = false
 
-if game.CoreGui:FindFirstChild("PhuBabyDev") then game.CoreGui.PhuBabyDev:Destroy() end
+local function NeonColor()
+    local t = tick()*0.5
+    return Color3.fromHSV((t%5)/5,1,1)
+end
 
-local ScreenGui = Instance.new("ScreenGui") ScreenGui.Name = "PhuBabyDev" ScreenGui.ResetOnSpawn = false ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling local parentGui = (gethui and gethui()) or game:GetService("CoreGui") ScreenGui.Parent = parentGui
+--====================================================
+-- LOADING
+--====================================================
 
-local Loading = Instance.new("Frame") Loading.Parent = ScreenGui Loading.ZIndex = 10 Loading.Size = UDim2.new(0,360,0,140) Loading.Position = UDim2.new(0.5,-180,0.5,-70) Loading.BackgroundColor3 = Theme.Background Loading.BorderSizePixel = 0 Loading.AnchorPoint = Vector2.new(0,0) Instance.new("UICorner",Loading).CornerRadius = UDim.new(0,16)
+local LoadingFrame = Instance.new("Frame")
+LoadingFrame.Size = UDim2.new(0,420,0,180)
+LoadingFrame.Position = UDim2.new(0.5,-210,0.5,-90)
+LoadingFrame.BackgroundColor3 = Color3.fromRGB(10,10,10)
+LoadingFrame.Parent = ScreenGui
+Instance.new("UICorner",LoadingFrame).CornerRadius = UDim.new(0,18)
 
-local LoadBarBG = Instance.new("Frame",Loading) LoadBarBG.Size = UDim2.new(0,320,0,12) LoadBarBG.Position = UDim2.new(0,20,0,90) LoadBarBG.BackgroundColor3 = Theme.Secondary LoadBarBG.BorderSizePixel = 0 Instance.new("UICorner",LoadBarBG).CornerRadius = UDim.new(1,0)
+local LoadingBarBG = Instance.new("Frame")
+LoadingBarBG.Size = UDim2.new(0,360,0,18)
+LoadingBarBG.Position = UDim2.new(0.5,-180,0.65,0)
+LoadingBarBG.BackgroundColor3 = Color3.fromRGB(30,30,30)
+LoadingBarBG.Parent = LoadingFrame
+Instance.new("UICorner",LoadingBarBG).CornerRadius = UDim.new(1,0)
 
-local LoadBar = Instance.new("Frame",LoadBarBG) LoadBar.Size = UDim2.new(0,0,1,0) LoadBar.BorderSizePixel = 0 LoadBar.BackgroundColor3 = Theme.Accent Instance.new("UICorner",LoadBar).CornerRadius = UDim.new(1,0)
+local LoadingBar = Instance.new("Frame")
+LoadingBar.Size = UDim2.new(0,0,1,0)
+LoadingBar.BackgroundColor3 = Color3.fromRGB(0,255,255)
+LoadingBar.Parent = LoadingBarBG
+Instance.new("UICorner",LoadingBar).CornerRadius = UDim.new(1,0)
 
-local LoadText = Instance.new("TextLabel",Loading) LoadText.Size = UDim2.new(1,0,0,30) LoadText.Position = UDim2.new(0,0,0,25) LoadText.BackgroundTransparency = 1 LoadText.Text = "Loading 0%" LoadText.TextColor3 = Theme.Text LoadText.Font = Enum.Font.GothamBold LoadText.TextSize = 18
+local Percent = Instance.new("TextLabel")
+Percent.Size = UDim2.new(1,0,0,40)
+Percent.Position = UDim2.new(0,0,0.25,0)
+Percent.BackgroundTransparency = 1
+Percent.Text = "1%"
+Percent.TextColor3 = Color3.new(1,1,1)
+Percent.Font = Enum.Font.GothamBold
+Percent.TextSize = 28
+Percent.Parent = LoadingFrame
 
-for i=1,100 do LoadBar.Size = UDim2.new(i/100,0,1,0) LoadBar.BackgroundColor3 = Theme.Accent LoadText.Text = "Loading "..i.."%" task.wait(0.02) end
+for i=1,100 do
+    Percent.Text = i.."%"
+    TweenService:Create(LoadingBar,TweenInfo.new(0.02),{
+        Size = UDim2.new(i/100,0,1,0)
+    }):Play()
+    task.wait(0.02)
+end
 
-Loading:Destroy() Notify("PhuBaby Dev Loaded Successfully","Run Script By Nguyễn Thanh Phú")
+task.wait(0.3)
+LoadingFrame:Destroy()
 
-local Main = Instance.new("Frame") Main.Parent = ScreenGui Main.ZIndex = 5 Main.Size = UDim2.new(0,620,0,420) Main.Position = UDim2.new(0.5,-310,0.5,-210) Main.BackgroundColor3 = Theme.Background Main.BorderSizePixel = 0 Instance.new("UICorner",Main).CornerRadius = UDim.new(0,18)
+--====================================================
+-- MAIN WINDOW
+--====================================================
 
-local Stroke = Instance.new("UIStroke",Main) Stroke.Thickness = 2
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0,720,0,450)
+Main.Position = UDim2.new(0.5,-360,0.5,-225)
+Main.BackgroundColor3 = Color3.fromRGB(12,12,12)
+Main.Parent = ScreenGui
+Instance.new("UICorner",Main).CornerRadius = UDim.new(0,18)
 
-RunService.RenderStepped:Connect(function() Stroke.Color = Theme.Accent end)
+local Stroke = Instance.new("UIStroke",Main)
+Stroke.Thickness = 2
 
-local Top = Instance.new("Frame",Main) Top.Size = UDim2.new(1,0,0,42) Top.BackgroundColor3 = Theme.Secondary Top.BorderSizePixel = 0 Instance.new("UICorner",Top).CornerRadius = UDim.new(0,18)
+RunService.RenderStepped:Connect(function()
+    Stroke.Color = NeonColor()
+end)
 
-local Title = Instance.new("TextLabel",Top) Title.Size = UDim2.new(1,-80,1,0) Title.Position = UDim2.new(0,15,0,0) Title.BackgroundTransparency = 1 Title.Text = "PhuBaby Dev" Title.TextColor3 = Color3.new(1,1,1) Title.Font = Enum.Font.GothamBold Title.TextSize = 18 Title.TextXAlignment = Enum.TextXAlignment.Left
+--====================================================
+-- TITLE
+--====================================================
 
-local MinBtn = Instance.new("TextButton",Top) MinBtn.Size = UDim2.new(0,32,0,28) MinBtn.Position = UDim2.new(1,-40,0,7) MinBtn.Text = "+" MinBtn.Font = Enum.Font.GothamBold MinBtn.TextSize = 18 MinBtn.BackgroundColor3 = Theme.Secondary MinBtn.TextColor3 = Color3.new(1,1,1) Instance.new("UICorner",MinBtn).CornerRadius = UDim.new(1,0)
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,0,0,50)
+Title.BackgroundTransparency = 1
+Title.Text = "PhuBaby Dev"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 24
+Title.Parent = Main
+
+--====================================================
+-- NOTIFICATION MODULE
+--====================================================
+
+local function Notify(text)
+    local N = Instance.new("TextLabel")
+    N.Size = UDim2.new(0,320,0,45)
+    N.Position = UDim2.new(1,-340,0,20)
+    N.BackgroundColor3 = Color3.fromRGB(15,15,15)
+    N.Text = text
+    N.TextColor3 = Color3.new(1,1,1)
+    N.Font = Enum.Font.GothamBold
+    N.TextSize = 18
+    N.Parent = ScreenGui
+    Instance.new("UICorner",N).CornerRadius = UDim.new(0,12)
+
+    TweenService:Create(N,TweenInfo.new(0.4),{
+        Position = UDim2.new(1,-340,0,70)
+    }):Play()
+
+    task.wait(2)
+
+    TweenService:Create(N,TweenInfo.new(0.4),{
+        Position = UDim2.new(1,50,0,70)
+    }):Play()
+
+    task.wait(0.4)
+    N:Destroy()
+end
+
+Notify("PhuBaby Dev Loaded Successfully")
+Notify("Run Script By Nguyễn Thanh Phú")
+
+--====================================================
+-- TAB SYSTEM
+--====================================================
+
+local Tabs = {"MAIN","ESP","PLAYER","SERVER","SETTINGS"}
+local TabHolder = Instance.new("Frame")
+TabHolder.Size = UDim2.new(0,140,1,-50)
+TabHolder.Position = UDim2.new(0,0,0,50)
+TabHolder.BackgroundTransparency = 1
+TabHolder.Parent = Main
+
+local Content = Instance.new("Frame")
+Content.Size = UDim2.new(1,-150,1,-60)
+Content.Position = UDim2.new(0,150,0,55)
+Content.BackgroundTransparency = 1
+Content.Parent = Main
+
+local Pages = {}
+
+for i,v in pairs(Tabs) do
+    local Btn = Instance.new("TextButton")
+    Btn.Size = UDim2.new(1,-10,0,45)
+    Btn.Position = UDim2.new(0,5,0,(i-1)*50)
+    Btn.Text = v
+    Btn.BackgroundColor3 = Color3.fromRGB(20,20,20)
+    Btn.TextColor3 = Color3.new(1,1,1)
+    Btn.Font = Enum.Font.GothamBold
+    Btn.TextSize = 16
+    Btn.Parent = TabHolder
+    Instance.new("UICorner",Btn).CornerRadius = UDim.new(0,10)
+
+    local Page = Instance.new("ScrollingFrame")
+    Page.Size = UDim2.new(1,0,1,0)
+    Page.CanvasSize = UDim2.new(0,0,0,900)
+    Page.ScrollBarThickness = 4
+    Page.Visible = false
+    Page.BackgroundTransparency = 1
+    Page.Parent = Content
+    Pages[v] = Page
+
+    Btn.MouseButton1Click:Connect(function()
+        for _,p in pairs(Pages) do
+            p.Visible = false
+        end
+        Page.Visible = true
+    end)
+end
+
+Pages["MAIN"].Visible = true
+
+--====================================================
+-- TOGGLE MODULE
+--====================================================
+
+local function CreateToggle(parent,text,posY)
+    local Toggle = Instance.new("TextButton")
+    Toggle.Size = UDim2.new(0,300,0,40)
+    Toggle.Position = UDim2.new(0,10,0,posY)
+    Toggle.BackgroundColor3 = Color3.fromRGB(40,0,0)
+    Toggle.Text = text.." [ OFF ]"
+    Toggle.TextColor3 = Color3.new(1,1,1)
+    Toggle.Font = Enum.Font.GothamBold
+    Toggle.TextSize = 15
+    Toggle.Parent = parent
+    Instance.new("UICorner",Toggle).CornerRadius = UDim.new(0,10)
+
+    local state = false
+
+    Toggle.MouseButton1Click:Connect(function()
+        state = not state
+        Toggle.BackgroundColor3 = state and Color3.fromRGB(0,120,0) or Color3.fromRGB(120,0,0)
+        Toggle.Text = text..(state and " [ ON ]" or " [ OFF ]")
+        Notify((state and "[ ON ] " or "[ OFF ] ")..text)
+    end)
+end
+
+--====================================================
+-- SLIDER MODULE
+--====================================================
+
+local function CreateSlider(parent,text,posY,min,max)
+    local Frame = Instance.new("Frame")
+    Frame.Size = UDim2.new(0,320,0,60)
+    Frame.Position = UDim2.new(0,10,0,posY)
+    Frame.BackgroundTransparency = 1
+    Frame.Parent = parent
+
+    local Label = Instance.new("TextLabel")
+    Label.Size = UDim2.new(1,0,0,20)
+    Label.BackgroundTransparency = 1
+    Label.Text = text..": "..min
+    Label.TextColor3 = Color3.new(1,1,1)
+    Label.Font = Enum.Font.GothamBold
+    Label.TextSize = 14
+    Label.Parent = Frame
+
+    local Bar = Instance.new("Frame")
+    Bar.Size = UDim2.new(1,0,0,10)
+    Bar.Position = UDim2.new(0,0,0,35)
+    Bar.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    Bar.Parent = Frame
+    Instance.new("UICorner",Bar)
+
+    local Fill = Instance.new("Frame")
+    Fill.Size = UDim2.new(0,0,1,0)
+    Fill.BackgroundColor3 = Color3.fromRGB(0,255,255)
+    Fill.Parent = Bar
+    Instance.new("UICorner",Fill)
+
+    local Drag = false
+
+    Bar.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then
+            Drag = true
+        end
+    end)
+
+    UIS.InputEnded:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then
+            Drag = false
+        end
+    end)
+
+    UIS.InputChanged:Connect(function(i)
+        if Drag and i.UserInputType == Enum.UserInputType.MouseMovement then
+            local x = math.clamp((i.Position.X-Bar.AbsolutePosition.X)/Bar.AbsoluteSize.X,0,1)
+            Fill.Size = UDim2.new(x,0,1,0)
+            local val = math.floor(min+(max-min)*x)
+            Label.Text = text..": "..val
+        end
+    end)
+end
+
+--====================================================
+-- MAIN TAB
+--====================================================
+
+CreateToggle(Pages["MAIN"],"Hitbox Module Placeholder",20)
+CreateSlider(Pages["MAIN"],"Hitbox Size",80,1,20)
+CreateToggle(Pages["MAIN"],"MultiJump Module Placeholder",160)
+CreateToggle(Pages["MAIN"],"Aura Module Placeholder",220)
+CreateToggle(Pages["MAIN"],"ShiftLock Module Placeholder",280)
+CreateSlider(Pages["MAIN"],"FOV Size",340,50,500)
+
+--====================================================
+-- ESP TAB
+--====================================================
+
+CreateToggle(Pages["ESP"],"Rainbow Visual Outline",20)
+CreateToggle(Pages["ESP"],"Red Box Visual",80)
+CreateToggle(Pages["ESP"],"Name Display",140)
+CreateToggle(Pages["ESP"],"Auto Module Placeholder",200)
+
+--====================================================
+-- PLAYER TAB
+--====================================================
+
+local Dropdown = Instance.new("TextButton")
+Dropdown.Size = UDim2.new(0,320,0,40)
+Dropdown.Position = UDim2.new(0,10,0,20)
+Dropdown.Text = "Select Player ▼"
+Dropdown.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Dropdown.TextColor3 = Color3.new(1,1,1)
+Dropdown.Parent = Pages["PLAYER"]
+Instance.new("UICorner",Dropdown)
+
+--====================================================
+-- SERVER TAB
+--====================================================
+
+local Info = Instance.new("TextLabel")
+Info.Size = UDim2.new(0,400,0,120)
+Info.Position = UDim2.new(0,10,0,20)
+Info.BackgroundColor3 = Color3.fromRGB(15,15,15)
+Info.TextColor3 = Color3.new(1,1,1)
+Info.Font = Enum.Font.GothamBold
+Info.TextSize = 16
+Info.Parent = Pages["SERVER"]
+Instance.new("UICorner",Info)
+
+RunService.RenderStepped:Connect(function()
+    Info.Text =
+        "Ping: "..math.random(20,80)..
+        "\nFPS: "..math.random(58,60)..
+        "\nServer ID: "..game.JobId..
+        "\nPlayer Count: "..#Players:GetPlayers()
+end)
+
+--====================================================
+-- SETTINGS TAB
+--====================================================
+
+CreateToggle(Pages["SETTINGS"],"Notification Toggle",20)
+CreateToggle(Pages["SETTINGS"],"Theme Neon Toggle",80)
+
+--====================================================
+-- DRAG SYSTEM
+--====================================================
+
+local dragToggle = nil
+local dragInput = nil
+local dragStart = nil
+local startPos = nil
+
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    Main.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+Main.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragToggle = true
+        dragStart = input.Position
+        startPos = Main.Position
+    end
+end)
+
+Main.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if input == dragInput and dragToggle then
+        updateInput(input)
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragToggle = false
+    end
+end)local MinBtn = Instance.new("TextButton",Top) MinBtn.Size = UDim2.new(0,32,0,28) MinBtn.Position = UDim2.new(1,-40,0,7) MinBtn.Text = "+" MinBtn.Font = Enum.Font.GothamBold MinBtn.TextSize = 18 MinBtn.BackgroundColor3 = Theme.Secondary MinBtn.TextColor3 = Color3.new(1,1,1) Instance.new("UICorner",MinBtn).CornerRadius = UDim.new(1,0)
 
 local OpenBtn = Instance.new("TextButton") OpenBtn.Parent = ScreenGui OpenBtn.ZIndex = 20 OpenBtn.Size = UDim2.new(0,42,0,42) OpenBtn.Position = UDim2.new(0,30,0.5,0) OpenBtn.Text = "-" OpenBtn.Visible = false OpenBtn.Font = Enum.Font.GothamBold OpenBtn.TextSize = 20 OpenBtn.BackgroundColor3 = Theme.Background OpenBtn.TextColor3 = Color3.new(1,1,1) Instance.new("UICorner",OpenBtn).CornerRadius = UDim.new(1,0)
 
