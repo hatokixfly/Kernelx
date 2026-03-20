@@ -1,279 +1,295 @@
+--// PHUBABY DEV PREMIUM MOBILE 2026
+--// Optimized for Delta iOS / Android
 
---// PhuBaby Dev GUI Script Framework
---// Author: Nguyễn Thanh Phú
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Stats = game:GetService("Stats")
 
---// UI Core Module
-local UI = {}
-UI.ScreenGui = Instance.new("ScreenGui")
-UI.MainFrame = Instance.new("Frame")
-UI.MainFrame.Size = UDim2.new(0, 400, 0, 500)
-UI.MainFrame.Position = UDim2.new(0.5, -200, 0.5, -250)
-UI.MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-UI.MainFrame.BorderSizePixel = 0
-UI.MainFrame.Parent = UI.ScreenGui
+local LP = Players.LocalPlayer
+local PG = LP:WaitForChild("PlayerGui")
 
--- Loading Module
-local Loading = {}
-Loading.LoadingFrame = Instance.new("Frame")
-Loading.LoadingFrame.Size = UDim2.new(0, 400, 0, 100)
-Loading.LoadingFrame.Position = UDim2.new(0.5, -200, 0.5, -50)
-Loading.LoadingFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Loading.LoadingFrame.BorderSizePixel = 0
-Loading.LoadingFrame.Parent = UI.ScreenGui
-
-Loading.LoadingBar = Instance.new("Frame")
-Loading.LoadingBar.Size = UDim2.new(0, 0, 1, 0)
-Loading.LoadingBar.Position = UDim2.new(0, 0, 0, 0)
-Loading.LoadingBar.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
-Loading.LoadingBar.BorderSizePixel = 0
-Loading.LoadingBar.Parent = Loading.LoadingFrame
-
-Loading.LoadingText = Instance.new("TextLabel")
-Loading.LoadingText.Size = UDim2.new(1, 0, 1, 0)
-Loading.LoadingText.Position = UDim2.new(0, 0, 0, 0)
-Loading.LoadingText.BackgroundTransparency = 1
-Loading.LoadingText.TextColor3 = Color3.fromRGB(0, 255, 255)
-Loading.LoadingText.Text = "Loading..."
-Loading.LoadingText.Font = Enum.Font.SourceSans
-Loading.LoadingText.TextSize = 24
-Loading.LoadingText.Parent = Loading.LoadingFrame
-
-spawn(function()
-    for i = 1, 100 do
-        Loading.LoadingBar.Size = UDim2.new(i / 100, 0, 1, 0)
-        Loading.LoadingText.Text = "Loading... " .. i .. "%"
-        wait(0.05)
-    end
-    Loading.LoadingFrame:TweenPosition(UDim2.new(0.5, -200, 0.5, -500), "Out", "Quad", 0.5)
-    wait(0.5)
-    Loading.LoadingFrame:Destroy()
-
-    local Notification = Instance.new("TextLabel")
-    Notification.Size = UDim2.new(0, 400, 0, 50)
-    Notification.Position = UDim2.new(0.5, -200, 0.5, -25)
-    Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Notification.BorderSizePixel = 0
-    Notification.TextColor3 = Color3.fromRGB(0, 255, 255)
-    Notification.Text = "PhuBaby Dev Loaded Successfully\nRun Script By Nguyễn Thanh Phú"
-    Notification.Font = Enum.Font.SourceSans
-    Notification.TextSize = 24
-    Notification.Parent = UI.ScreenGui
-
-    wait(2)
-    Notification:Destroy()
+pcall(function()
+	local old = PG:FindFirstChild("PhuBabyDev")
+	if old then old:Destroy() end
 end)
 
--- Toggle System Module
-local Toggle = {}
-Toggle.Create = function(parent, text)
-    local ToggleFrame = Instance.new("Frame")
-    ToggleFrame.Size = UDim2.new(1, 0, 0, 50)
-    ToggleFrame.Position = UDim2.new(0, 0, 0, 0)
-    ToggleFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    ToggleFrame.BorderSizePixel = 0
-    ToggleFrame.Parent = parent
+-- GUI ROOT
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "PhuBabyDev"
+Gui.ResetOnSpawn = false
+Gui.Parent = PG
 
-    local ToggleButton = Instance.new("TextButton")
-    ToggleButton.Size = UDim2.new(1, 0, 1, 0)
-    ToggleButton.Position = UDim2.new(0, 0, 0, 0)
-    ToggleButton.BackgroundTransparency = 1
-    ToggleButton.Text = text
-    ToggleButton.Font = Enum.Font.SourceSans
-    ToggleButton.TextSize = 24
-    ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    ToggleButton.Parent = ToggleFrame
-
-    local ToggleState = false
-    ToggleButton.MouseButton1Click:Connect(function()
-        ToggleState = not ToggleState
-        if ToggleState then
-            ToggleButton.TextColor3 = Color3.fromRGB(0, 255, 0)
-        else
-            ToggleButton.TextColor3 = Color3.fromRGB(255, 0, 0)
-        end
-        local Notification = Instance.new("TextLabel")
-        Notification.Size = UDim2.new(0, 200, 0, 50)
-        Notification.Position = UDim2.new(0.5, -100, 0.5, -25)
-        Notification.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-        Notification.BorderSizePixel = 0
-        Notification.TextColor3 = Color3.fromRGB(255, 255, 255)
-        Notification.Text = ToggleState and "[ ON ] Function Enabled" or "[ OFF ] Function Disabled"
-        Notification.Font = Enum.Font.SourceSans
-        Notification.TextSize = 24
-        Notification.Parent = UI.ScreenGui
-
-        wait(2)
-        Notification:Destroy()
-    end)
-
-    return ToggleFrame
+-- THEME
+local ThemeHue = 0
+local function Neon()
+	return Color3.fromHSV(ThemeHue,1,1)
 end
 
--- Slider System Module
-local Slider = {}
-Slider.Create = function(parent, min, max, default, callback)
-    local SliderFrame = Instance.new("Frame")
-    SliderFrame.Size = UDim2.new(1, 0, 0, 50)
-    SliderFrame.Position = UDim2.new(0, 0, 0, 0)
-    SliderFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    SliderFrame.BorderSizePixel = 0
-    SliderFrame.Parent = parent
+task.spawn(function()
+	while task.wait(0.05) do
+		ThemeHue = (ThemeHue + 0.003) % 1
+	end
+end)
 
-    local SliderBar = Instance.new("Frame")
-    SliderBar.Size = UDim2.new(1, 0, 0.2, 0)
-    SliderBar.Position = UDim2.new(0, 0, 0.8, 0)
-    SliderBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    SliderBar.BorderSizePixel = 0
-    SliderBar.Parent = SliderFrame
+-- LOADING SCREEN
+local LoadFrame = Instance.new("Frame")
+LoadFrame.Size = UDim2.new(0,300,0,120)
+LoadFrame.Position = UDim2.new(0.5,-150,0.5,-60)
+LoadFrame.BackgroundColor3 = Color3.fromRGB(10,10,10)
+LoadFrame.Parent = Gui
+Instance.new("UICorner",LoadFrame)
 
-    local SliderThumb = Instance.new("Frame")
-    SliderThumb.Size = UDim2.new(0, 20, 1, 0)
-    SliderThumb.Position = UDim2.new((default - min) / (max - min), 0, 0, 0)
-    SliderThumb.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
-    SliderThumb.BorderSizePixel = 0
-    SliderThumb.Parent = SliderBar
+local LoadBarBG = Instance.new("Frame")
+LoadBarBG.Size = UDim2.new(0,260,0,14)
+LoadBarBG.Position = UDim2.new(0,20,0,70)
+LoadBarBG.BackgroundColor3 = Color3.fromRGB(25,25,25)
+LoadBarBG.Parent = LoadFrame
+Instance.new("UICorner",LoadBarBG)
 
-    local SliderText = Instance.new("TextLabel")
-    SliderText.Size = UDim2.new(1, 0, 0.8, 0)
-    SliderText.Position = UDim2.new(0, 0, 0, 0)
-    SliderText.BackgroundTransparency = 1
-    SliderText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    SliderText.Text = tostring(default)
-    SliderText.Font = Enum.Font.SourceSans
-    SliderText.TextSize = 24
-    SliderText.Parent = SliderFrame
+local LoadBar = Instance.new("Frame")
+LoadBar.Size = UDim2.new(0,0,1,0)
+LoadBar.BackgroundColor3 = Color3.fromRGB(0,255,255)
+LoadBar.Parent = LoadBarBG
+Instance.new("UICorner",LoadBar)
 
-    local dragging = false
-    local startPos
-    local startSize
+local LoadText = Instance.new("TextLabel")
+LoadText.Size = UDim2.new(1,0,0,40)
+LoadText.Position = UDim2.new(0,0,0,15)
+LoadText.BackgroundTransparency = 1
+LoadText.Text = "Loading 0%"
+LoadText.TextColor3 = Color3.new(1,1,1)
+LoadText.Font = Enum.Font.GothamBold
+LoadText.TextSize = 20
+LoadText.Parent = LoadFrame
 
-    SliderThumb.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            startPos = input.Position
-            startSize = SliderThumb.Size
-        end
-    end)
-
-    SliderThumb.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-            local delta = input.Position - startPos
-            local newSize = startSize.X + delta.X
-            newSize = math.clamp(newSize, 0, SliderBar.Size.X.UScale * SliderBar.Size.X.Offset)
-            SliderThumb.Size = UDim2.new(0, newSize, 1, 0)
-            local value = min + (max - min) * (newSize / SliderBar.Size.X.UScale / SliderBar.Size.X.Offset)
-            SliderText.Text = tostring(math.round(value))
-            if callback then
-                callback(value)
-            end
-        end
-    end)
-
-    SliderThumb.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = false
-        end
-    end)
-
-    return SliderFrame
+for i=1,100 do
+	LoadBar.Size = UDim2.new(i/100,0,1,0)
+	LoadText.Text = "Loading "..i.."%"
+	task.wait(0.01)
 end
 
--- Dropdown Module
-local Dropdown = {}
-Dropdown.Create = function(parent, options, callback)
-    local DropdownFrame = Instance.new("Frame")
-    DropdownFrame.Size = UDim2.new(1, 0, 0, 50)
-    DropdownFrame.Position = UDim2.new(0, 0, 0, 0)
-    DropdownFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    DropdownFrame.BorderSizePixel = 0
-    DropdownFrame.Parent = parent
+LoadFrame:Destroy()
 
-    local DropdownButton = Instance.new("TextButton")
-    DropdownButton.Size = UDim2.new(1, 0, 1, 0)
-    DropdownButton.Position = UDim2.new(0, 0, 0, 0)
-    DropdownButton.BackgroundTransparency = 1
-    DropdownButton.Text = options[1]
-    DropdownButton.Font = Enum.Font.SourceSans
-    DropdownButton.TextSize = 24
-    DropdownButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    DropdownButton.Parent = DropdownFrame
+-- MAIN UI
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0,370,0,470)
+Main.Position = UDim2.new(0.5,-185,0.5,-235)
+Main.BackgroundColor3 = Color3.fromRGB(12,12,12)
+Main.Parent = Gui
+Instance.new("UICorner",Main)
 
-    local DropdownList = Instance.new("Frame")
-    DropdownList.Size = UDim2.new(1, 0, 0, 0)
-    DropdownList.Position = UDim2.new(0, 0, 1, 0)
-    DropdownList.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    DropdownList.BorderSizePixel = 0
-    DropdownList.Visible = false
-    DropdownList.Parent = DropdownFrame
+local Stroke = Instance.new("UIStroke",Main)
+Stroke.Thickness = 2
 
-    for _, option in ipairs(options) do
-        local OptionButton = Instance.new("TextButton")
-        OptionButton.Size = UDim2.new(1, 0, 0, 30)
-        OptionButton.Position = UDim2.new(0, 0, _, 0)
-        OptionButton.BackgroundTransparency = 1
-        OptionButton.Text = option
-        OptionButton.Font = Enum.Font.SourceSans
-        OptionButton.TextSize = 24
-        OptionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        OptionButton.Parent = DropdownList
+RunService.RenderStepped:Connect(function()
+	Stroke.Color = Neon()
+end)
 
-        OptionButton.MouseButton1Click:Connect(function()
-            DropdownButton.Text = option
-            DropdownList.Visible = false
-            if callback then
-                callback(option)
-            end
-        end)
-    end
+-- TITLE
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,0,0,45)
+Title.BackgroundTransparency = 1
+Title.Text = "PhuBaby Dev"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 22
+Title.Parent = Main
 
-    DropdownButton.MouseButton1Click:Connect(function()
-        DropdownList.Visible = not DropdownList.Visible
-    end)
+-- NOTIFY
+local function Notify(txt)
+	local N = Instance.new("TextLabel")
+	N.Size = UDim2.new(0,240,0,40)
+	N.Position = UDim2.new(0.5,-120,0,20)
+	N.BackgroundColor3 = Color3.fromRGB(20,20,20)
+	N.Text = txt
+	N.TextColor3 = Color3.new(1,1,1)
+	N.Parent = Gui
+	Instance.new("UICorner",N)
 
-    return DropdownFrame
+	task.delay(2,function()
+		N:Destroy()
+	end)
 end
 
--- Drag Mobile Module
-local Drag = {}
-Drag.Init = function(frame)
-    local dragging
-    local dragInput
-    local dragStart
-    local startPos
+Notify("Run Script By Nguyễn Thanh Phú")
 
-    local function update(input)
-        local delta = input.Position - dragStart
-        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
+-- TABS
+local Tabs = {"MAIN","ESP","PLAYER","SERVER","SETTINGS"}
+local Pages = {}
 
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
+for i,v in ipairs(Tabs) do
+	local B = Instance.new("TextButton")
+	B.Size = UDim2.new(0,68,0,35)
+	B.Position = UDim2.new(0,(i-1)*72+5,0,50)
+	B.Text = v
+	B.TextColor3 = Color3.new(1,1,1)
+	B.BackgroundColor3 = Color3.fromRGB(20,20,20)
+	B.Parent = Main
+	Instance.new("UICorner",B)
 
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
+	local Page = Instance.new("Frame")
+	Page.Size = UDim2.new(1,-20,1,-100)
+	Page.Position = UDim2.new(0,10,0,95)
+	Page.BackgroundTransparency = 1
+	Page.Visible = (i==1)
+	Page.Parent = Main
+	Pages[v] = Page
 
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
-    end)
-
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            update(input)
-        end
-    end)
+	B.MouseButton1Click:Connect(function()
+		for _,p in pairs(Pages) do p.Visible=false end
+		Page.Visible=true
+	end)
 end
 
--- Notification Module
+-- TOGGLE FUNCTION
+local function Toggle(parent,text,y)
+	local T = Instance.new("TextButton")
+	T.Size = UDim2.new(0,220,0,42)
+	T.Position = UDim2.new(0,10,0,y)
+	T.BackgroundColor3 = Color3.fromRGB(120,0,0)
+	T.Text = text.." [OFF]"
+	T.TextColor3 = Color3.new(1,1,1)
+	T.Parent = parent
+	Instance.new("UICorner",T)
+
+	local on=false
+
+	T.MouseButton1Click:Connect(function()
+		on=not on
+		T.BackgroundColor3 = on and Color3.fromRGB(0,120,0) or Color3.fromRGB(120,0,0)
+		T.Text = text..(on and " [ON]" or " [OFF]")
+		Notify(on and "[ ON ] Function Enabled" or "[ OFF ] Function Disabled")
+	end)
+end
+
+-- MAIN TAB
+Toggle(Pages.MAIN,"Hitbox",10)
+Toggle(Pages.MAIN,"MultiJump",60)
+Toggle(Pages.MAIN,"Aura",110)
+Toggle(Pages.MAIN,"ShiftLock",160)
+
+-- FOV SLIDER
+local SliderBG = Instance.new("Frame")
+SliderBG.Size = UDim2.new(0,220,0,10)
+SliderBG.Position = UDim2.new(0,10,0,230)
+SliderBG.BackgroundColor3 = Color3.fromRGB(40,40,40)
+SliderBG.Parent = Pages.MAIN
+Instance.new("UICorner",SliderBG)
+
+local SliderFill = Instance.new("Frame")
+SliderFill.Size = UDim2.new(0,0,1,0)
+SliderFill.BackgroundColor3 = Color3.fromRGB(0,255,255)
+SliderFill.Parent = SliderBG
+Instance.new("UICorner",SliderFill)
+
+local SliderText = Instance.new("TextLabel")
+SliderText.Size = UDim2.new(0,220,0,30)
+SliderText.Position = UDim2.new(0,10,0,195)
+SliderText.BackgroundTransparency = 1
+SliderText.Text = "FOV: 50"
+SliderText.TextColor3 = Color3.new(1,1,1)
+SliderText.Parent = Pages.MAIN
+
+local dragging=false
+
+SliderBG.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch then
+		dragging=true
+	end
+end)
+
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch then
+		dragging=false
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if dragging then
+		local x = math.clamp((input.Position.X-SliderBG.AbsolutePosition.X)/SliderBG.AbsoluteSize.X,0,1)
+		SliderFill.Size = UDim2.new(x,0,1,0)
+		local val = math.floor(50 + x*450)
+		SliderText.Text = "FOV: "..val
+	end
+end)
+
+-- ESP TAB
+Toggle(Pages.ESP,"Rainbow Outline",10)
+Toggle(Pages.ESP,"Red Box",60)
+Toggle(Pages.ESP,"Name Display",110)
+
+-- PLAYER TAB DROPDOWN
+local Drop = Instance.new("TextButton")
+Drop.Size = UDim2.new(0,220,0,42)
+Drop.Position = UDim2.new(0,10,0,10)
+Drop.Text = "Select Player"
+Drop.Parent = Pages.PLAYER
+Instance.new("UICorner",Drop)
+
+Drop.MouseButton1Click:Connect(function()
+	local names={}
+	for _,p in pairs(Players:GetPlayers()) do
+		table.insert(names,p.Name)
+	end
+	if #names>0 then
+		Drop.Text = names[1]
+	end
+end)
+
+-- SERVER TAB
+local Info = Instance.new("TextLabel")
+Info.Size = UDim2.new(0,300,0,120)
+Info.Position = UDim2.new(0,10,0,10)
+Info.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Info.TextColor3 = Color3.new(1,1,1)
+Info.Parent = Pages.SERVER
+Instance.new("UICorner",Info)
+
+task.spawn(function()
+	while task.wait(1) do
+		local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+		Info.Text =
+			"Ping: "..ping..
+			"\nPlayers: "..#Players:GetPlayers()..
+			"\nServer ID: "..game.JobId
+	end
+end)
+
+-- SETTINGS TAB
+Toggle(Pages.SETTINGS,"Notification",10)
+Toggle(Pages.SETTINGS,"Theme Neon",60)
+
+-- DRAG MOBILE
+local drag=false
+local dragStart,startPos
+
+Main.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch then
+		drag=true
+		dragStart=input.Position
+		startPos=Main.Position
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if drag then
+		local delta=input.Position-dragStart
+		Main.Position=UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset+delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset+delta.Y
+		)
+	end
+end)
+
+UIS.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch then
+		drag=false
+	end
+end)- Notification Module
 local Notification = {}
 Notification.Create = function(text)
     local NotificationFrame = Instance.new("Frame")
