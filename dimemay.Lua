@@ -230,7 +230,4 @@ Instance.new("UICorner", FloatingBtn).CornerRadius = UDim.new(1, 0)
 
 -- // THÔNG BÁO HOÀN TẤT \\ --
 print("KERNELX PREMIUM MAX INJECTED SUCCESSFULLY")
-Notify("KernelX Max", "All systems operational. Click 'K' to toggle menu.", 5)
-
--- Ghi chú: Để có Menu UI đầy đủ Tab, bạn nên sử dụng thư viện Rayfield hoặc Kavo 
--- kết hợp với các biến Logic KernelX đã được thiết lập ở trên.
+Notify("KernelX Max", "All systems operational. Click 'K' to toggle menu.",
